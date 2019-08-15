@@ -26,6 +26,14 @@ const hexagonalDirection = {
 			other.setColor('rgb(100, 100, 80)');
 			other.draw();
 
+			let y = adjacentHexagon(hex, hexagonalDirection.BOTTOM_RIGHT);
+			y.setColor('rgb(255, 0, 0)');
+			y.draw();
+
+			let x = adjacentHexagon(other, hexagonalDirection.TOP_RIGHT);
+			x.draw();
+			
+
 			let awdawd = adjacentHexagon(hex, hexagonalDirection.BOTTOM_RIGHT);
 			awdawd.setColor('rgb(100, 200, 80)');
 			awdawd.draw();
@@ -102,16 +110,19 @@ function Hexagon(x, y, width) {
 	this.getEdgeSize = function() { return edgeSize; }
 }
 
+// The following contant determines the standard distance between hexagons
+const adjacentHexagonDistance = 2;
 /*
 	Returns a new Hexagon adjacent to input hexagon off to the cited direction
 */
 function adjacentHexagon(hexagon, direction) {
 
-	const adjacentHexagonDistance = 3;
 	let newX = 0;
 	let newY = 0;
 	let newWidth = hexagon.getWidth();
 	let oldPosition = hexagon.getPosition();
+	const factorY = 2 / Math.sqrt(3) * adjacentHexagonDistance;
+	const factorZ = factorY / 2;
 
 	switch (direction) {
 		case hexagonalDirection.TOP_LEFT:
@@ -121,13 +132,13 @@ function adjacentHexagon(hexagon, direction) {
 			break;
 		case hexagonalDirection.TOP_RIGHT:
 
-			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + adjacentHexagonDistance / 2;
-			newY = oldPosition.getY() - hexagon.getHeight() / 2 - adjacentHexagonDistance / 2;
+			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
+			newY = oldPosition.getY() - hexagon.getHeight() / 2 - adjacentHexagonDistance;
 			break;
 		case hexagonalDirection.TOP:
 
-			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + adjacentHexagonDistance;
-			newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance;
+			newX = oldPosition.getX();
+			newY = oldPosition.getY() - nexagon.getHeight() - 2 * adjacentHexagonDistance;
 			break;
 		case hexagonalDirection.BOTTOM_LEFT:
 
@@ -137,12 +148,12 @@ function adjacentHexagon(hexagon, direction) {
 		case hexagonalDirection.BOTTOM:
 
 			newX = oldPosition.getX();
-			newY = oldPosition.getY() + hexagon.getHeight() + adjacentHexagonDistance;
+			newY = oldPosition.getY() + hexagon.getHeight() + 2 * adjacentHexagonDistance;
 			break;
 		case hexagonalDirection.BOTTOM_RIGHT:
 
-			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + adjacentHexagonDistance / 2;
-			newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance / 2;
+			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
+			newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance;
 			break;
 
 	}
