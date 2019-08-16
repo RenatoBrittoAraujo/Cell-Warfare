@@ -1,9 +1,4 @@
-let pointPackage = require('./point')
-
-module.exports = {
-	Hexagon,
-	adjacentHexagon
-}
+let Point = require('./point')
 
 const hexagonalDirection = {
 	TOP_LEFT: 0,
@@ -23,12 +18,12 @@ function Hexagon(x, y, width) {
 	let edgeSize = width / 2.0;
 
 	let points = [
-		new pointPackage.Point(x + edgeSize / 2.0				, y								),
-		new pointPackage.Point(x + width - edgeSize / 2.0, y								),
-		new pointPackage.Point(x + width									, y + height / 2.0),
-		new pointPackage.Point(x + width - edgeSize / 2.0, y + height			),
-		new pointPackage.Point(x + edgeSize / 2.0				, y + height			),
-		new pointPackage.Point(x													, y + height / 2.0)
+		new Point(x + edgeSize / 2.0					, y								),
+		new Point(x + width - edgeSize / 2.0	, y								),
+		new Point(x + width									, y + height / 2.0),
+		new Point(x + width - edgeSize / 2.0	, y + height			),
+		new Point(x + edgeSize / 2.0					, y + height			),
+		new Point(x													, y + height / 2.0)
 	];
 	
 	let color = 'rgb(0, 0, 0)';
@@ -102,4 +97,10 @@ function adjacentHexagon(hexagon, direction) {
 		
 	}
 	return new Hexagon(newX, newY, newWidth);
+}
+
+module.exports = {
+	Hexagon,
+	adjacentHexagon,
+	hexagonalDirection
 }

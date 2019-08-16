@@ -1,5 +1,5 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-let GameMap = require('./gamemap')
+let GameMap = require('./gamemap');
 
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
@@ -7,10 +7,33 @@ let context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+window.addEventListener('resize', () => {
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	console.log('CANVAS WIDTH = ' + canvas.width + ' CANVAS HEIGHT = ' + canvas.height);
+});
+
+console.log('CANVAS WIDTH = ' + canvas.width + ' CANVAS HEIGHT = ' + canvas.height);
+
 (function mainGameLoop()
 {
+	let w = 1;
+	let h = 1;
 	map = new GameMap();
-	map.fillMap(20, 20);
+	map.fillMap(w, h);
+
+	window.addEventListener('keypress', (e) => {
+		if (e.key == 'd'|| e.key == 's') {
+			if(e.key == 's') {
+				h++;
+			} else {
+				w++;
+			}
+			map = new GameMap();
+			map.fillMap(w, h);
+
+		}
+	});
 	
 	setInterval(
 		function() {
@@ -33,12 +56,35 @@ let hexagonPackage = require('./hexagon')
 
 function GameMap() {
 	
-	let baseHex;
 	let hexagonList = [];
 	
 	this.fillMap = function(width, height) {
-		baseHex = new hexagonPackage.Hexagon(0, 0, 150);
-		hexagonList.push(baseHex);	
+
+		let makeLine = function (beginHex) {
+			let goingBottom = true
+			let lastHex = beginHex
+			for (let i = 1; i < width; i++) {
+				if (goingBottom) {
+					lastHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.BOTTOM_RIGHT);
+				} else {
+					lastHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.TOP_RIGHT);
+				}
+				hexagonList.push(lastHex)
+				goingBottom = !goingBottom;
+			}
+		}
+
+		let baseHex = new hexagonPackage.Hexagon(0, 0, 150);
+		hexagonList.push(baseHex);
+		makeLine(baseHex);
+		let lastHex = baseHex;
+
+		for (let i = 1; i < height; i++) {
+			let newHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.BOTTOM);
+			hexagonList.push(newHex);
+			makeLine(newHex);
+			lastHex = newHex;
+		}
 	}
 	
 	this.draw = function (context) {
@@ -50,12 +96,7 @@ function GameMap() {
 
 module.exports = GameMap;
 },{"./hexagon":3}],3:[function(require,module,exports){
-let pointPackage = require('./point')
-
-module.exports = {
-	Hexagon,
-	adjacentHexagon
-}
+let Point = require('./point')
 
 const hexagonalDirection = {
 	TOP_LEFT: 0,
@@ -75,12 +116,12 @@ function Hexagon(x, y, width) {
 	let edgeSize = width / 2.0;
 
 	let points = [
-		new pointPackage.Point(x + edgeSize / 2.0				, y								),
-		new pointPackage.Point(x + width - edgeSize / 2.0, y								),
-		new pointPackage.Point(x + width									, y + height / 2.0),
-		new pointPackage.Point(x + width - edgeSize / 2.0, y + height			),
-		new pointPackage.Point(x + edgeSize / 2.0				, y + height			),
-		new pointPackage.Point(x													, y + height / 2.0)
+		new Point(x + edgeSize / 2.0					, y								),
+		new Point(x + width - edgeSize / 2.0	, y								),
+		new Point(x + width									, y + height / 2.0),
+		new Point(x + width - edgeSize / 2.0	, y + height			),
+		new Point(x + edgeSize / 2.0					, y + height			),
+		new Point(x													, y + height / 2.0)
 	];
 	
 	let color = 'rgb(0, 0, 0)';
@@ -155,21 +196,27 @@ function adjacentHexagon(hexagon, direction) {
 	}
 	return new Hexagon(newX, newY, newWidth);
 }
-},{"./point":4}],4:[function(require,module,exports){
-module.exports = {
-	Point
-}
 
+module.exports = {
+	Hexagon,
+	adjacentHexagon,
+	hexagonalDirection
+}
+},{"./point":4}],4:[function(require,module,exports){
 /*
 	2D space point
 */
-function Point(conX, conY) {
-	let x = conX;
-	let y = conY;
-	this.setX = function(newX) { x = newX; };
-	this.setY = function (newY) { y = newY; };
-	this.getX = function () { return x; };
-	this.getY = function () { return y; };
+class Point {
+	constructor(conX, conY) {
+		let x = conX;
+		let y = conY;
+		this.setX = (newX) => { x = newX; };
+		this.setY = (newY) => { y = newY; };
+		this.getX = () => { return x; };
+		this.getY = () => { return y; };
+	}
 }
+
+module.exports = Point;
 
 },{}]},{},[1]);

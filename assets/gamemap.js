@@ -2,13 +2,35 @@ let hexagonPackage = require('./hexagon')
 
 function GameMap() {
 	
-	let baseHex;
 	let hexagonList = [];
 	
 	this.fillMap = function(width, height) {
-		baseHex = new hexagonPackage.Hexagon(0, 0, 150);
+
+		let makeLine = function (beginHex) {
+			let goingBottom = true
+			let lastHex = beginHex
+			for (let i = 1; i < width; i++) {
+				if (goingBottom) {
+					lastHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.BOTTOM_RIGHT);
+				} else {
+					lastHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.TOP_RIGHT);
+				}
+				hexagonList.push(lastHex)
+				goingBottom = !goingBottom;
+			}
+		}
+
+		let baseHex = new hexagonPackage.Hexagon(0, 0, 150);
 		hexagonList.push(baseHex);
-		
+		makeLine(baseHex);
+		let lastHex = baseHex;
+
+		for (let i = 1; i < height; i++) {
+			let newHex = hexagonPackage.adjacentHexagon(lastHex, hexagonPackage.hexagonalDirection.BOTTOM);
+			hexagonList.push(newHex);
+			makeLine(newHex);
+			lastHex = newHex;
+		}
 	}
 	
 	this.draw = function (context) {
