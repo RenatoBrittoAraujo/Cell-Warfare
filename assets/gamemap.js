@@ -1,5 +1,7 @@
 let hexagonPackage = require('./hexagon')
 
+const tileWidht = 100;
+
 function GameMap() {
 	
 	let hexagonList = [];
@@ -20,7 +22,7 @@ function GameMap() {
 			}
 		}
 
-		let baseHex = new hexagonPackage.Hexagon(0, 0, 150);
+		let baseHex = new hexagonPackage.Hexagon(0, 0, tileWidht);
 		hexagonList.push(baseHex);
 		makeLine(baseHex);
 		let lastHex = baseHex;

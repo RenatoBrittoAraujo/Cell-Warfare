@@ -10,10 +10,7 @@ canvas.height = window.innerHeight;
 window.addEventListener('resize', () => {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	console.log('CANVAS WIDTH = ' + canvas.width + ' CANVAS HEIGHT = ' + canvas.height);
 });
-
-console.log('CANVAS WIDTH = ' + canvas.width + ' CANVAS HEIGHT = ' + canvas.height);
 
 (function mainGameLoop()
 {
@@ -23,16 +20,22 @@ console.log('CANVAS WIDTH = ' + canvas.width + ' CANVAS HEIGHT = ' + canvas.heig
 	map.fillMap(w, h);
 
 	window.addEventListener('keypress', (e) => {
-		if (e.key == 'd'|| e.key == 's') {
-			if(e.key == 's') {
+		switch (e.key) {
+			case 'a':
+				w = Math.max(w - 1, 0);
+				break;
+			case 'w':
+				h = Math.max(h - 1, 0);
+				break;
+			case 's':
 				h++;
-			} else {
+				break;
+			case 'd':
 				w++;
-			}
-			map = new GameMap();
-			map.fillMap(w, h);
-
+				break;
 		}
+		map = new GameMap();
+		map.fillMap(w, h);
 	});
 	
 	setInterval(
@@ -54,6 +57,8 @@ function clearCanvas() {
 },{"./gamemap":2}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
 
+const tileWidht = 100;
+
 function GameMap() {
 	
 	let hexagonList = [];
@@ -74,7 +79,7 @@ function GameMap() {
 			}
 		}
 
-		let baseHex = new hexagonPackage.Hexagon(0, 0, 150);
+		let baseHex = new hexagonPackage.Hexagon(0, 0, tileWidht);
 		hexagonList.push(baseHex);
 		makeLine(baseHex);
 		let lastHex = baseHex;
