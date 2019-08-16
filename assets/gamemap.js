@@ -1,12 +1,20 @@
 let hexagonPackage = require('./hexagon')
+let Point = require('./point')
 
 const tileWidht = 100;
 
 function GameMap() {
 	
 	let hexagonList = [];
+	let position = new Point(0, 0);
+	let mapWidth = 0;
+	let mapHeight = 0;
 	
 	this.fillMap = function(width, height) {
+
+		hexagonList = [];
+		mapWidth = 0;
+		mapHeight = 0;
 
 		let makeLine = function (beginHex) {
 			let goingBottom = true
@@ -19,10 +27,10 @@ function GameMap() {
 				}
 				hexagonList.push(lastHex)
 				goingBottom = !goingBottom;
-			}
+			} 
 		}
 
-		let baseHex = new hexagonPackage.Hexagon(0, 0, tileWidht);
+		let baseHex = new hexagonPackage.Hexagon(position.getX(), position.getY(), tileWidht);
 		hexagonList.push(baseHex);
 		makeLine(baseHex);
 		let lastHex = baseHex;
@@ -33,6 +41,17 @@ function GameMap() {
 			makeLine(newHex);
 			lastHex = newHex;
 		}
+
+		for (hex of hexagonList) {
+			mapWidth = Math.max(
+				mapWidth,
+				hex.getPosition().getX() + hex.getWidth() - position.getX()
+			);
+			mapHeight = Math.max(
+				mapHeight,
+				hex.getPosition().getY() + hex.getHeight() - position.getY()
+			);
+		}
 	}
 	
 	this.draw = function (context) {
@@ -40,6 +59,24 @@ function GameMap() {
 			hexagon.draw(context);
 		}
 	}
+
+	this.setPosition = function(point) {
+		let vectorFromLastPosition = new Point(
+			point.getX() - position.getX(),
+			point.getY() - position.getY()
+		);
+		position = point;
+		for (hexagon of hexagonList) {
+			let oldPosition = hexagon.getPosition();
+			let newPosition = new Point();
+			newPosition.setX(oldPosition.getX() + vectorFromLastPosition.getX());
+			newPosition.setY(oldPosition.getY() + vectorFromLastPosition.getY());
+			hexagon.setPosition(newPosition);
+		}
+	}
+
+	this.getWidth = function() { return mapWidth; }
+	this.getHeight = function() { return mapHeight; }
 }
 
 module.exports = GameMap;

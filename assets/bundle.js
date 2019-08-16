@@ -1,5 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 let GameMap = require('./gamemap');
+let Point = require('./point');
 
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
@@ -22,10 +23,10 @@ window.addEventListener('resize', () => {
 	window.addEventListener('keypress', (e) => {
 		switch (e.key) {
 			case 'a':
-				w = Math.max(w - 1, 0);
+				w = Math.max(w - 1, 1);
 				break;
 			case 'w':
-				h = Math.max(h - 1, 0);
+				h = Math.max(h - 1, 1);
 				break;
 			case 's':
 				h++;
@@ -34,9 +35,14 @@ window.addEventListener('resize', () => {
 				w++;
 				break;
 		}
-		map = new GameMap();
 		map.fillMap(w, h);
+		map.setPosition(new Point(
+			canvas.width / 2 - map.getWidth() / 2,
+			canvas.height / 2 - map.getHeight() / 2
+		));
 	});
+
+	map.setPosition(new Point(100, 100));
 	
 	setInterval(
 		function() {
@@ -53,17 +59,24 @@ Clear canvas back to css background-color
 function clearCanvas() {
 	context.clearRect(0, 0, innerWidth, innerHeight);
 }
-
-},{"./gamemap":2}],2:[function(require,module,exports){
+},{"./gamemap":2,"./point":4}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
+let Point = require('./point')
 
 const tileWidht = 100;
 
 function GameMap() {
 	
 	let hexagonList = [];
+	let position = new Point(0, 0);
+	let mapWidth = 0;
+	let mapHeight = 0;
 	
 	this.fillMap = function(width, height) {
+
+		hexagonList = [];
+		mapWidth = 0;
+		mapHeight = 0;
 
 		let makeLine = function (beginHex) {
 			let goingBottom = true
@@ -76,10 +89,10 @@ function GameMap() {
 				}
 				hexagonList.push(lastHex)
 				goingBottom = !goingBottom;
-			}
+			} 
 		}
 
-		let baseHex = new hexagonPackage.Hexagon(0, 0, tileWidht);
+		let baseHex = new hexagonPackage.Hexagon(position.getX(), position.getY(), tileWidht);
 		hexagonList.push(baseHex);
 		makeLine(baseHex);
 		let lastHex = baseHex;
@@ -90,6 +103,17 @@ function GameMap() {
 			makeLine(newHex);
 			lastHex = newHex;
 		}
+
+		for (hex of hexagonList) {
+			mapWidth = Math.max(
+				mapWidth,
+				hex.getPosition().getX() + hex.getWidth() - position.getX()
+			);
+			mapHeight = Math.max(
+				mapHeight,
+				hex.getPosition().getY() + hex.getHeight() - position.getY()
+			);
+		}
 	}
 	
 	this.draw = function (context) {
@@ -97,10 +121,28 @@ function GameMap() {
 			hexagon.draw(context);
 		}
 	}
+
+	this.setPosition = function(point) {
+		let vectorFromLastPosition = new Point(
+			point.getX() - position.getX(),
+			point.getY() - position.getY()
+		);
+		position = point;
+		for (hexagon of hexagonList) {
+			let oldPosition = hexagon.getPosition();
+			let newPosition = new Point();
+			newPosition.setX(oldPosition.getX() + vectorFromLastPosition.getX());
+			newPosition.setY(oldPosition.getY() + vectorFromLastPosition.getY());
+			hexagon.setPosition(newPosition);
+		}
+	}
+
+	this.getWidth = function() { return mapWidth; }
+	this.getHeight = function() { return mapHeight; }
 }
 
 module.exports = GameMap;
-},{"./hexagon":3}],3:[function(require,module,exports){
+},{"./hexagon":3,"./point":4}],3:[function(require,module,exports){
 let Point = require('./point')
 
 const hexagonalDirection = {
@@ -120,14 +162,20 @@ function Hexagon(x, y, width) {
 	let height = width * Math.sqrt(3.0) / 2.0;
 	let edgeSize = width / 2.0;
 
-	let points = [
-		new Point(x + edgeSize / 2.0					, y								),
-		new Point(x + width - edgeSize / 2.0	, y								),
-		new Point(x + width									, y + height / 2.0),
-		new Point(x + width - edgeSize / 2.0	, y + height			),
-		new Point(x + edgeSize / 2.0					, y + height			),
-		new Point(x													, y + height / 2.0)
-	];
+	let points = [];
+	
+	let createPoints = function(x, y) {
+		points = [
+			new Point(x + edgeSize / 2.0, y),
+			new Point(x + width - edgeSize / 2.0, y),
+			new Point(x + width, y + height / 2.0),
+			new Point(x + width - edgeSize / 2.0, y + height),
+			new Point(x + edgeSize / 2.0, y + height),
+			new Point(x, y + height / 2.0)
+		];
+	}
+
+	createPoints(x, y);
 	
 	let color = 'rgb(0, 0, 0)';
 	
@@ -150,6 +198,17 @@ function Hexagon(x, y, width) {
 	this.getHeight = function() { return height; }
 	this.getPosition = function() { return new Point(x, y); }
 	this.getEdgeSize = function() { return edgeSize; }
+
+	this.setPosition = function(point) { createPoints(point.getX(), point.getY()); }
+
+	/*
+		Returns true if a given point is inside hexagon, false otherwise
+	*/
+	this.isPointInside = function(point) {
+		for(let i = 0; i < points.length + 1; i++) {
+			
+		}
+	} 
 }
 
 // The following contant determines the standard distance between hexagons

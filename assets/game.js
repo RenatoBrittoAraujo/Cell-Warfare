@@ -1,4 +1,5 @@
 let GameMap = require('./gamemap');
+let Point = require('./point');
 
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
@@ -21,10 +22,10 @@ window.addEventListener('resize', () => {
 	window.addEventListener('keypress', (e) => {
 		switch (e.key) {
 			case 'a':
-				w = Math.max(w - 1, 0);
+				w = Math.max(w - 1, 1);
 				break;
 			case 'w':
-				h = Math.max(h - 1, 0);
+				h = Math.max(h - 1, 1);
 				break;
 			case 's':
 				h++;
@@ -33,9 +34,14 @@ window.addEventListener('resize', () => {
 				w++;
 				break;
 		}
-		map = new GameMap();
 		map.fillMap(w, h);
+		map.setPosition(new Point(
+			canvas.width / 2 - map.getWidth() / 2,
+			canvas.height / 2 - map.getHeight() / 2
+		));
 	});
+
+	map.setPosition(new Point(100, 100));
 	
 	setInterval(
 		function() {

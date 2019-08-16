@@ -17,14 +17,20 @@ function Hexagon(x, y, width) {
 	let height = width * Math.sqrt(3.0) / 2.0;
 	let edgeSize = width / 2.0;
 
-	let points = [
-		new Point(x + edgeSize / 2.0					, y								),
-		new Point(x + width - edgeSize / 2.0	, y								),
-		new Point(x + width									, y + height / 2.0),
-		new Point(x + width - edgeSize / 2.0	, y + height			),
-		new Point(x + edgeSize / 2.0					, y + height			),
-		new Point(x													, y + height / 2.0)
-	];
+	let points = [];
+	
+	let createPoints = function(x, y) {
+		points = [
+			new Point(x + edgeSize / 2.0, y),
+			new Point(x + width - edgeSize / 2.0, y),
+			new Point(x + width, y + height / 2.0),
+			new Point(x + width - edgeSize / 2.0, y + height),
+			new Point(x + edgeSize / 2.0, y + height),
+			new Point(x, y + height / 2.0)
+		];
+	}
+
+	createPoints(x, y);
 	
 	let color = 'rgb(0, 0, 0)';
 	
@@ -47,6 +53,17 @@ function Hexagon(x, y, width) {
 	this.getHeight = function() { return height; }
 	this.getPosition = function() { return new Point(x, y); }
 	this.getEdgeSize = function() { return edgeSize; }
+
+	this.setPosition = function(point) { createPoints(point.getX(), point.getY()); }
+
+	/*
+		Returns true if a given point is inside hexagon, false otherwise
+	*/
+	this.isPointInside = function(point) {
+		for(let i = 0; i < points.length + 1; i++) {
+			
+		}
+	} 
 }
 
 // The following contant determines the standard distance between hexagons
