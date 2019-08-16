@@ -18,6 +18,7 @@ window.addEventListener('resize', () => {
 	let h = 1;
 	map = new GameMap();
 	map.fillMap(w, h);
+	map.setPosition(new Point(canvas.width / 2 - 100 / 2, canvas.height / 2 - 100 / 2 - 35))
 
 	window.addEventListener('keypress', (e) => {
 		switch (e.key) {
@@ -37,11 +38,9 @@ window.addEventListener('resize', () => {
 		map.fillMap(w, h);
 		map.setPosition(new Point(
 			canvas.width / 2 - map.getWidth() / 2,
-			canvas.height / 2 - map.getHeight() / 2
+			canvas.height / 2 - map.getHeight() / 2 - 35
 		));
 	});
-
-	map.setPosition(new Point(100, 100));
 	
 	setInterval(
 		function() {

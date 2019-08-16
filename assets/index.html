@@ -7,11 +7,21 @@
 		body {
 			margin: 0;
 			overflow: hidden;
+			font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 		}
 	</style>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-	<canvas></canvas>
+
+	<nav class="navbar navbar-dark bg-dark">
+		<a class="nav-link" style="color: white" href="">Cell Warfare</a>
+		<a class="nav-link" style="color: white" href="/instructions"> Instructions </a>
+		<a class="nav-link" style="color: white" href="/about"> About </a>
+	</nav>
+
+	<canvas style="height: 90%"></canvas>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="/public/bundle.js"></script>
 </body>

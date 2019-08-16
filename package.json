@@ -1,0 +1,24 @@
+{
+  "name": "cell-warfare",
+  "version": "1.0.0",
+  "description": "## Run game: ``` node main.js ```",
+  "main": "main.js",
+  "dependencies": {
+    "browserify": "^16.5.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RenatoBrittoAraujo/Cell-Warfare.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RenatoBrittoAraujo/Cell-Warfare/issues"
+  },
+  "homepage": "https://github.com/RenatoBrittoAraujo/Cell-Warfare#readme"
+}
