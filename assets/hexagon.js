@@ -1,36 +1,50 @@
-$.getScript('point.js', (point) => {
-	/*
+let pointPackage = require('./point')
+
+module.exports = {
+	Hexagon,
+	adjacentHexagon
+}
+
+const hexagonalDirection = {
+	TOP_LEFT: 0,
+	TOP: 1,
+	TOP_RIGHT: 2,
+	BOTTOM_LEFT: 3,
+	BOTTOM: 4,
+	BOTTOM_RIGHT: 5
+};
+
+/*
 	Returns a new intance of a regular hexagon object with horizontal total span of width
 */
 function Hexagon(x, y, width) {
-	/* PRIVATE */
+
 	let height = width * Math.sqrt(3.0) / 2.0;
 	let edgeSize = width / 2.0;
 
 	let points = [
-		new Point(x + edgeSize / 2.0				, y								),
-		new Point(x + width - edgeSize / 2.0, y								),
-		new Point(x + width									, y + height / 2.0),
-		new Point(x + width - edgeSize / 2.0, y + height			),
-		new Point(x + edgeSize / 2.0				, y + height			),
-		new Point(x													, y + height / 2.0)
+		new pointPackage.Point(x + edgeSize / 2.0				, y								),
+		new pointPackage.Point(x + width - edgeSize / 2.0, y								),
+		new pointPackage.Point(x + width									, y + height / 2.0),
+		new pointPackage.Point(x + width - edgeSize / 2.0, y + height			),
+		new pointPackage.Point(x + edgeSize / 2.0				, y + height			),
+		new pointPackage.Point(x													, y + height / 2.0)
 	];
 	
 	let color = 'rgb(0, 0, 0)';
 	
-/* PUBLIC */
-this.draw = function() {
-	context.beginPath();
-	lastPoint = points[points.length - 1]
-	context.moveTo(lastPoint.getX(), lastPoint.getY());
-	for (point of points) {
-		context.lineTo(point.getX(), point.getY());
-	}
-	context.fillStyle = color;
-	context.fill();
-};
+	this.draw = function(context) {
+		context.beginPath();
+		lastPoint = points[points.length - 1]
+		context.moveTo(lastPoint.getX(), lastPoint.getY());
+		for (point of points) {
+			context.lineTo(point.getX(), point.getY());
+		}
+		context.fillStyle = color;
+		context.fill();
+	};
 
-this.setColor = function(newColor) {
+	this.setColor = function(newColor) {
 		color = newColor;
 	};
 
@@ -89,4 +103,3 @@ function adjacentHexagon(hexagon, direction) {
 	}
 	return new Hexagon(newX, newY, newWidth);
 }
-});

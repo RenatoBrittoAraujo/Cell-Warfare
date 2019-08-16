@@ -1,3 +1,7 @@
+module.exports = {
+	Point
+}
+
 /*
 	2D space point
 */
