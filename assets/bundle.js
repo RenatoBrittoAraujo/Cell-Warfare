@@ -136,6 +136,18 @@ function GameMap() {
 		}
 	}
 
+	this.uncolonize = function() {
+		let lightGrey = 'rgb(170, 170, 170)'
+		for (hexagon of hexagonList) {
+			hexagon.setColor(lightGrey);
+			hexagon.setOccupant(null);
+		}
+	}
+
+	this.isValidMap = function() {
+		return hexagonList.length > 1;
+	}
+
 	this.getWidth = function() { return mapWidth; }
 	this.getHeight = function() { return mapHeight; }
 }
@@ -177,6 +189,20 @@ function Hexagon(x, y, width) {
 	createPoints(x, y);
 	
 	let color = 'rgb(0, 0, 0)';
+
+	let team = null;
+
+	this.setTeam = function(newTeam) {
+		team = newTeam;
+	}
+
+	this.getTeam = function() {
+		return team;
+	}
+
+	this.hasTeam = function() {
+		return !(team === null);
+	}
 	
 	this.draw = function(context) {
 		context.beginPath();

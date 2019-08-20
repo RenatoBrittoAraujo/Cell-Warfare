@@ -33,6 +33,20 @@ function Hexagon(x, y, width) {
 	createPoints(x, y);
 	
 	let color = 'rgb(0, 0, 0)';
+
+	let team = null;
+
+	this.setTeam = function(newTeam) {
+		team = newTeam;
+	}
+
+	this.getTeam = function() {
+		return team;
+	}
+
+	this.hasTeam = function() {
+		return !(team === null);
+	}
 	
 	this.draw = function(context) {
 		context.beginPath();

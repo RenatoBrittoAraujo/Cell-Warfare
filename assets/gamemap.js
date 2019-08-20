@@ -75,6 +75,18 @@ function GameMap() {
 		}
 	}
 
+	this.uncolonize = function() {
+		let lightGrey = 'rgb(170, 170, 170)'
+		for (hexagon of hexagonList) {
+			hexagon.setColor(lightGrey);
+			hexagon.setOccupant(null);
+		}
+	}
+
+	this.isValidMap = function() {
+		return hexagonList.length > 1;
+	}
+
 	this.getWidth = function() { return mapWidth; }
 	this.getHeight = function() { return mapHeight; }
 }
