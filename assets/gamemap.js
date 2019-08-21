@@ -79,7 +79,7 @@ function GameMap() {
 		let lightGrey = 'rgb(170, 170, 170)'
 		for (hexagon of hexagonList) {
 			hexagon.setColor(lightGrey);
-			hexagon.setOccupant(null);
+			hexagon.setTeam(null);
 		}
 	}
 
@@ -91,11 +91,15 @@ function GameMap() {
 	this.getHeight = function() { return mapHeight; }
 
 	this.hexagonClick = function(point) {
-		for(let i = 0; i < hexagonList.length; i++) {
-			if (hexagonList[i].isPointInside(point)) {
-				console.log(i);
+		for (hexagon of hexagonList) {
+			if (hexagon.isPointInside(point)) {
+				return hexagon;
 			}
 		}
+	}
+
+	this.hexagonPress = function(hexagon, team) {
+
 	}
 }
 

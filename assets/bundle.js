@@ -1,58 +1,67 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+let Team = require('./team');
 let GameMap = require('./gamemap');
 let Point = require('./point');
+let NPC = require('./npc');
 
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
 
+let map;
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+let playingGame = false;
+let mapWidth = 1;
+let mapHeight = 1;
+
+let timeSinceLastTurn;
+let turnLenght = 3000; // In milisseconds
+
+let playerTeam = new Team();
+let npcTeam = new Team();
+
+(function mainGameLoop()
+{
+	map = new GameMap();
+	setMap();
+	
+	/* Every ten milisseconds, the game updates */
+	setInterval(
+		function() {
+			
+			clearCanvas();
+			map.draw(context);
+
+			if (playingGame) {
+				timeSinceLastTurn += 10; // Milisseconds
+				if (timeSinceLastTurn > turnLenght) {
+					timeSinceLastTurn = 0;
+					console.log('PROCESSING TURN');
+				}
+			}
+
+	}, 10);
+
+})();
+
+// LISTENERS
 
 window.addEventListener('resize', () => {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 });
 
-let map;
-
 window.addEventListener('mousedown', (e) => {
 	let rect = canvas.getBoundingClientRect();
-	map.hexagonClick(new Point(e.x - rect.x, e.y - rect.y));
+	let hexagonFound = map.hexagonClick(new Point(e.x - rect.x, e.y - rect.y));
+	if (hexagonFound) {
+		
+	}
 });
 
-let playingGame = false;
-
-let mapWidth = 1;
-let mapHeight = 1;
-window.addEventListener('keypress', manageMapSettingInput);
-
-(function mainGameLoop()
-{
-	const initialVerticalOffset = 35
-	map = new GameMap();
-	setMap();
-	
-	setInterval(
-		function() {
-			
-			clearCanvas();
-			map.draw(context);
-			
-	}, 10);
-
-})();
-
-/*
-Clear canvas back to css background-color
-*/
-function clearCanvas() {
-	context.clearRect(0, 0, innerWidth, innerHeight);
-}
-
-/*
-Manages user input during map selecting phase
-*/
-function manageMapSettingInput(e) {
+window.addEventListener('keypress', (e) => {
 	if (playingGame) {
 		return;
 	}
@@ -70,13 +79,24 @@ function manageMapSettingInput(e) {
 			mapWidth++;
 			break;
 		case 'Enter':
-			playingGame = true;
 			startGame();
-			break;
+			return;
 	}
 	setMap();
+});
+
+// FUNCTIONS
+
+/*
+Clear canvas back to css background-color
+*/
+function clearCanvas() {
+	context.clearRect(0, 0, innerWidth, innerHeight);
 }
 
+/*
+	Fills map with acoording input
+*/
 function setMap() {
 	map.fillMap(mapWidth, mapHeight);
 	map.setPosition(new Point(
@@ -85,10 +105,15 @@ function setMap() {
 	));
 }
 
+/*
+	Initilizes game
+*/
 function startGame() {
-	
+	map.uncolonize();
+	timeSinceLastTurn = 0;
+	playingGame = true;
 }
-},{"./gamemap":2,"./point":4}],2:[function(require,module,exports){
+},{"./gamemap":2,"./npc":4,"./point":5,"./team":6}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
 let Point = require('./point')
 
@@ -170,7 +195,7 @@ function GameMap() {
 		let lightGrey = 'rgb(170, 170, 170)'
 		for (hexagon of hexagonList) {
 			hexagon.setColor(lightGrey);
-			hexagon.setOccupant(null);
+			hexagon.setTeam(null);
 		}
 	}
 
@@ -182,16 +207,20 @@ function GameMap() {
 	this.getHeight = function() { return mapHeight; }
 
 	this.hexagonClick = function(point) {
-		for(let i = 0; i < hexagonList.length; i++) {
-			if (hexagonList[i].isPointInside(point)) {
-				console.log(i);
+		for (hexagon of hexagonList) {
+			if (hexagon.isPointInside(point)) {
+				return hexagon;
 			}
 		}
+	}
+
+	this.hexagonPress = function(hexagon, team) {
+
 	}
 }
 
 module.exports = GameMap;
-},{"./hexagon":3,"./point":4}],3:[function(require,module,exports){
+},{"./hexagon":3,"./point":5}],3:[function(require,module,exports){
 let Point = require('./point')
 
 const hexagonalDirection = {
@@ -257,6 +286,13 @@ function Hexagon(x, y, width) {
 		color = newColor;
 	};
 
+	this.setTeam = function(newTeam) {
+		team = newTeam;
+	}
+
+	this.hasTeam = () => { return !!team; }
+
+	this.getTeam = () => { return team; }
 	this.getWidth = function() { return width; }
 	this.getHeight = function() { return height; }
 	this.getPosition = function() { return new Point(x, y); }
@@ -268,12 +304,6 @@ function Hexagon(x, y, width) {
 		Returns true if a given point is inside hexagon, false otherwise	
 	*/
 	this.isPointInside = function(pointB) {
-
-		// pointB.print();
-
-		// for (point of points) {
-		// 	point.print();
-		// }
 
 		/*
 			Checks if point that is on the same line of a segment is inside given segment
@@ -373,7 +403,16 @@ module.exports = {
 	adjacentHexagon,
 	hexagonalDirection
 }
-},{"./point":4}],4:[function(require,module,exports){
+},{"./point":5}],4:[function(require,module,exports){
+let GameMap = require('./gamemap');
+let Team = require('./team');
+
+let NPC = function() {
+
+}
+
+module.exports = NPC;
+},{"./gamemap":2,"./team":6}],5:[function(require,module,exports){
 /*
 	2D space point
 */
@@ -391,4 +430,20 @@ class Point {
 
 module.exports = Point;
 
+},{}],6:[function(require,module,exports){
+let Team = function() {
+  let color = 'rgb(0, 0, 0)';
+  let hexagonList = [];
+  let money = 0;
+  this.setColor = (newColor) => { color = newColor; }
+  this.addHexagons = (hexagon) => {
+    hexagonList.push(hexagon);
+  }
+  this.runTurn = () => {
+    money += hexagonList.length;
+  }
+  this.getMoney = () => { return money; }
+}
+
+module.exports = Team;
 },{}]},{},[1]);
