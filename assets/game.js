@@ -12,18 +12,23 @@ window.addEventListener('resize', () => {
 	canvas.height = window.innerHeight;
 });
 
+let map;
+
+window.addEventListener('mousedown', (e) => {
+	map.hexagonClick(new Point(e.x, e.y));
+});
+
 let playingGame = false;
 
-let w = 1;
-let h = 1;
+let mapWidth = 1;
+let mapHeight = 1;
 window.addEventListener('keypress', manageMapSettingInput);
 
 (function mainGameLoop()
 {
-
+	const initialVerticalOffset = 35
 	map = new GameMap();
-	map.fillMap(w, h);
-	map.setPosition(new Point(canvas.width / 2 - 100 / 2, canvas.height / 2 - 100 / 2 - 35))
+	setMap();
 	
 	setInterval(
 		function() {
@@ -51,24 +56,33 @@ function manageMapSettingInput(e) {
 	}
 	switch (e.key) {
 		case 'a':
-			w = Math.max(w - 1, 1);
+			mapWidth = Math.max(mapWidth - 1, 1);
 			break;
 		case 'w':
-			h = Math.max(h - 1, 1);
+			mapHeight = Math.max(mapHeight - 1, 1);
 			break;
 		case 's':
-			h++;
+			mapHeight++;
 			break;
 		case 'd':
-			w++;
+			mapWidth++;
 			break;
 		case 'Enter':
 			playingGame = true;
+			startGame();
 			break;
 	}
-	map.fillMap(w, h);
+	setMap();
+}
+
+function setMap() {
+	map.fillMap(mapWidth, mapHeight);
 	map.setPosition(new Point(
 		canvas.width / 2 - map.getWidth() / 2,
 		canvas.height / 2 - map.getHeight() / 2 - 35
 	));
+}
+
+function startGame() {
+	
 }

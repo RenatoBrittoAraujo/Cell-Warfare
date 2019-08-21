@@ -13,18 +13,23 @@ window.addEventListener('resize', () => {
 	canvas.height = window.innerHeight;
 });
 
+let map;
+
+window.addEventListener('mousedown', (e) => {
+	map.hexagonClick(new Point(e.x, e.y));
+});
+
 let playingGame = false;
 
-let w = 1;
-let h = 1;
+let mapWidth = 1;
+let mapHeight = 1;
 window.addEventListener('keypress', manageMapSettingInput);
 
 (function mainGameLoop()
 {
-
+	const initialVerticalOffset = 35
 	map = new GameMap();
-	map.fillMap(w, h);
-	map.setPosition(new Point(canvas.width / 2 - 100 / 2, canvas.height / 2 - 100 / 2 - 35))
+	setMap();
 	
 	setInterval(
 		function() {
@@ -52,28 +57,36 @@ function manageMapSettingInput(e) {
 	}
 	switch (e.key) {
 		case 'a':
-			w = Math.max(w - 1, 1);
+			mapWidth = Math.max(mapWidth - 1, 1);
 			break;
 		case 'w':
-			h = Math.max(h - 1, 1);
+			mapHeight = Math.max(mapHeight - 1, 1);
 			break;
 		case 's':
-			h++;
+			mapHeight++;
 			break;
 		case 'd':
-			w++;
+			mapWidth++;
 			break;
 		case 'Enter':
 			playingGame = true;
+			startGame();
 			break;
 	}
-	map.fillMap(w, h);
+	setMap();
+}
+
+function setMap() {
+	map.fillMap(mapWidth, mapHeight);
 	map.setPosition(new Point(
 		canvas.width / 2 - map.getWidth() / 2,
 		canvas.height / 2 - map.getHeight() / 2 - 35
 	));
 }
 
+function startGame() {
+	
+}
 },{"./gamemap":2,"./point":4}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
 let Point = require('./point')
@@ -166,6 +179,14 @@ function GameMap() {
 
 	this.getWidth = function() { return mapWidth; }
 	this.getHeight = function() { return mapHeight; }
+
+	this.hexagonClick = function(point) {
+		for(let i = 0; i < hexagonList.length; i++) {
+			if (hexagonList[i].isPointInside(point)) {
+				console.log('Click on hexagon ' + i);
+			}
+		}
+	}
 }
 
 module.exports = GameMap;
@@ -246,8 +267,9 @@ function Hexagon(x, y, width) {
 		Returns true if a given point is inside hexagon, false otherwise	
 	*/
 	this.isPointInside = function(pointB) {
+
 		/*
-			Checks if point is inside segment
+			Checks if point that is on the same line of a segment is inside given segment
 		*/
 		let isInsideSegment  = function(segA, segB, point) {
 			let maxSX = Math.max(segA.getX(), segB.getX());
@@ -258,30 +280,33 @@ function Hexagon(x, y, width) {
 			let isBoundedByY = point.getY() <= maxSY && point.getY() >= minSY;
 			return isBoundedByX && isBoundedByY;
 		}
+
 		/*
-			Internal function that returns the dot product between a to c and b to c
+			Returns the cross product between a to c and b to c
 		*/
 		let crossProduct = function(a, b, c) {
 			let newA = new Point(a.getX() - c.getX(), a.getY() - c.getY());
 			let newB = new Point(b.getX() - c.getX(), b.getY() - c.getY());
-			return newA.getX() * newB.getY() - newA.getY() * newB().getX();
+			return newA.getX() * newB.getY() - newA.getY() * newB.getX();
 		} 
+
 		let crossProdSignal;
+
 		for(let i = 0; i < points.length + 1; i++) {
+
 			let pointA = points[i % points.length];
 			let pointC = points[(i + 1) % points.length];
 			let crossProdAns = crossProduct(pointA, pointB, pointC);
+
 			if (crossProdAns === 0) {
 				return isInsideSegment(pointA, pointC, pointB);
 			} else if (i === 0) {
 				crossProdSignal = crossProdAns / Math.abs(crossProdAns);
-			} else {
-				if (crossProdSignal !== crossProdAns / Math.abs(crossProdAns)) {
-					return false;
-				}
+			} else if (crossProdSignal !== crossProdAns / Math.abs(crossProdAns)) {
+				return false;
 			}
+
 		}
-		console.log('CLICK IS INSIDE HEXAGON');
 		return true;
 	} 
 }

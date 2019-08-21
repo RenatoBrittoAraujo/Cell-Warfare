@@ -74,8 +74,9 @@ function Hexagon(x, y, width) {
 		Returns true if a given point is inside hexagon, false otherwise	
 	*/
 	this.isPointInside = function(pointB) {
+
 		/*
-			Checks if point is inside segment
+			Checks if point that is on the same line of a segment is inside given segment
 		*/
 		let isInsideSegment  = function(segA, segB, point) {
 			let maxSX = Math.max(segA.getX(), segB.getX());
@@ -86,30 +87,33 @@ function Hexagon(x, y, width) {
 			let isBoundedByY = point.getY() <= maxSY && point.getY() >= minSY;
 			return isBoundedByX && isBoundedByY;
 		}
+
 		/*
-			Internal function that returns the dot product between a to c and b to c
+			Returns the cross product between a to c and b to c
 		*/
 		let crossProduct = function(a, b, c) {
 			let newA = new Point(a.getX() - c.getX(), a.getY() - c.getY());
 			let newB = new Point(b.getX() - c.getX(), b.getY() - c.getY());
-			return newA.getX() * newB.getY() - newA.getY() * newB().getX();
+			return newA.getX() * newB.getY() - newA.getY() * newB.getX();
 		} 
+
 		let crossProdSignal;
+
 		for(let i = 0; i < points.length + 1; i++) {
+
 			let pointA = points[i % points.length];
 			let pointC = points[(i + 1) % points.length];
 			let crossProdAns = crossProduct(pointA, pointB, pointC);
+
 			if (crossProdAns === 0) {
 				return isInsideSegment(pointA, pointC, pointB);
 			} else if (i === 0) {
 				crossProdSignal = crossProdAns / Math.abs(crossProdAns);
-			} else {
-				if (crossProdSignal !== crossProdAns / Math.abs(crossProdAns)) {
-					return false;
-				}
+			} else if (crossProdSignal !== crossProdAns / Math.abs(crossProdAns)) {
+				return false;
 			}
+
 		}
-		console.log('CLICK IS INSIDE HEXAGON');
 		return true;
 	} 
 }

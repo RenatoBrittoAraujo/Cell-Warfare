@@ -89,6 +89,14 @@ function GameMap() {
 
 	this.getWidth = function() { return mapWidth; }
 	this.getHeight = function() { return mapHeight; }
+
+	this.hexagonClick = function(point) {
+		for(let i = 0; i < hexagonList.length; i++) {
+			if (hexagonList[i].isPointInside(point)) {
+				console.log('Click on hexagon ' + i);
+			}
+		}
+	}
 }
 
 module.exports = GameMap;
