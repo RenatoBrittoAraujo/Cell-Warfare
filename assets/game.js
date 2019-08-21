@@ -3,6 +3,7 @@ let GameMap = require('./gamemap');
 let Point = require('./point');
 let NPC = require('./npc');
 
+let moneyDisplay = document.getElementById('money');
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
 
@@ -20,6 +21,8 @@ let turnLenght = 3000; // In milisseconds
 
 let playerTeam = new Team();
 let npcTeam = new Team();
+
+let teamList = [playerTeam, npcTeam];
 
 playerTeam.setGreen(255);
 npcTeam.setRed(255);
@@ -40,8 +43,11 @@ npcTeam.setRed(255);
 				timeSinceLastTurn += 10; // Milisseconds
 				if (timeSinceLastTurn > turnLenght) {
 					timeSinceLastTurn = 0;
-					console.log('PROCESSING TURN');
+					for (team of teamList) {
+						team.runTurn();
+					}
 				}
+				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
 			}
 
 	}, 10);
@@ -118,4 +124,5 @@ function startGame() {
 	playingGame = true;
 	map.addTeam(playerTeam);
 	map.addTeam(npcTeam);
+	map.setPlayerTeam(playerTeam);
 }

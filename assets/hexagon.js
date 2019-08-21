@@ -1,4 +1,5 @@
-let Point = require('./point')
+let Point = require('./point');
+let Team = require('./team');
 
 const hexagonalDirection = {
 	TOP_LEFT: 0,
@@ -34,10 +35,39 @@ function Hexagon(x, y, width) {
 	
 	let color = 'rgb(0, 0, 0)';
 
+	let changeColor = () => {
+		if (this.hasTeam()) {
+			this.setColor(team.fortificationColor(fortification));
+		} else {
+			this.setColor('rgb(140, 140, 140)');
+		}
+	}
+
 	let team = null;
 
+	let fortification = 0;
+
+	this.addFortification = () => { 
+		fortification++;
+		changeColor();
+	}
+
+	this.removeFortification = () => { 
+		fortification--; 
+		if (fortification <= 0) {
+			team.removeHexagon();
+			team = null;
+		}
+		changeColor();
+	}
+
+	this.getFortification = () => { return fortification; }
+
 	this.setTeam = function(newTeam) {
+		console.log('Set team called')
 		team = newTeam;
+		fortification = 1;
+		this.setColor(team.fortificationColor(2));
 	}
 
 	this.getTeam = function() {

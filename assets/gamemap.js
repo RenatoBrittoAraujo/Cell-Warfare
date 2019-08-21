@@ -2,6 +2,7 @@ let hexagonPackage = require('./hexagon')
 let Point = require('./point')
 
 const tileWidht = 100;
+const initialTileFortification = 3;
 
 function GameMap() {
 	
@@ -11,8 +12,9 @@ function GameMap() {
 	let position = new Point(0, 0);
 	let mapWidth = 0;
 	let mapHeight = 0;
+	let playerTeam;
 
-	let teams = [];
+	this.setPlayerTeam = (team) => { playerTeam = team; }
 
 	this.addTeam = function(team) {
 		let index;
@@ -22,9 +24,8 @@ function GameMap() {
 				console.log('INVALID HEXAGON INDEX');
 			}
 		} while(hexagonList[index].hasTeam());
-		team.setCapital(hexagonList[index]);
-		hexagonList[index].setColor(team.capitalColor());
-		teams.push(team);
+		console.log(team.fortificationColor(initialTileFortification));
+		hexagonList[index].setColor(team.fortificationColor(initialTileFortification));
 	}
 	
 	this.fillMap = function(width, height) {
@@ -115,13 +116,21 @@ function GameMap() {
 	this.hexagonClick = function(point) {
 		for (hexagon of hexagonList) {
 			if (hexagon.isPointInside(point)) {
-				return hexagon;
+				this.hexagonPress(hexagon, playerTeam);
 			}
 		}
 	}
 
 	this.hexagonPress = function(hexagon, team) {
+		if (!hexagon.hasTeam()) {
+			team.addHexagon();
+			console.log('COLONIZED');
+			hexagon.setTeam(team);
+		} else if (hexagon.getTeam() === team) {
+			hexagon.addFortification();
+		} else {
 
+		}
 	}
 }
 

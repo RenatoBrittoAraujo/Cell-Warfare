@@ -1,5 +1,4 @@
-const capitalColorDelta = 0.8;
-const minFortification = 70;
+const minFortification = 40;
 const fortificationLevels = 10;
 
 let Team = function() {
@@ -8,24 +7,18 @@ let Team = function() {
   let green = minFortification;
   let blue = minFortification;
 
-  let hexagonList = [];
+  let hexagonCount = 1;
   let money = 0;
 
-  let capital;
-
-  this.setCapital = (hexagon) => { capital = hexagon; }
-  this.getCapital = () => { return capital; }
-  this.isCapital = (hexagon) => { return hexagon == capital; }
+  this.addHexagon = () => { hexagonCount++; }
+  this.removeHexagon = () => { hexagonCount--; }
 
   this.setRed = (newRed) => { red = Math.floor(Math.max(Math.min(newRed, 255), minFortification)); }
   this.setGreen = (newGreen) => { green = Math.floor(Math.max(Math.min(newGreen, 255), minFortification)); }
   this.setBlue = (newBlue) => { blue = Math.floor(Math.max(Math.min(newBlue, 255), minFortification)); }
 
-  this.addHexagons = (hexagon) => {
-    hexagonList.push(hexagon);
-  }
   this.runTurn = () => {
-    money += hexagonList.length;
+    money += hexagonCount;
   }
   this.getMoney = () => { return money; }
 
@@ -34,9 +27,9 @@ let Team = function() {
       console.log('INVALID FORTIFICATION LEVEL');
     }
     return 'rgb(' + 
-      (Math.floor(Math.max(level * (red * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
-      (Math.floor(Math.max(level * (green * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
-      (Math.floor(Math.max(level * (blue * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      (Math.floor(Math.max((fortificationLevels - level) * (red - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
+      (Math.floor(Math.max((fortificationLevels - level) * (green - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      (Math.floor(Math.max((fortificationLevels - level) * (blue - minFortification)) / fortificationLevels, 0) + minFortification) +
       ')';
   }
 

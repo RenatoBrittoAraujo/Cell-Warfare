@@ -4,6 +4,7 @@ let GameMap = require('./gamemap');
 let Point = require('./point');
 let NPC = require('./npc');
 
+let moneyDisplay = document.getElementById('money');
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
 
@@ -21,6 +22,8 @@ let turnLenght = 3000; // In milisseconds
 
 let playerTeam = new Team();
 let npcTeam = new Team();
+
+let teamList = [playerTeam, npcTeam];
 
 playerTeam.setGreen(255);
 npcTeam.setRed(255);
@@ -41,8 +44,11 @@ npcTeam.setRed(255);
 				timeSinceLastTurn += 10; // Milisseconds
 				if (timeSinceLastTurn > turnLenght) {
 					timeSinceLastTurn = 0;
-					console.log('PROCESSING TURN');
+					for (team of teamList) {
+						team.runTurn();
+					}
 				}
+				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
 			}
 
 	}, 10);
@@ -119,12 +125,14 @@ function startGame() {
 	playingGame = true;
 	map.addTeam(playerTeam);
 	map.addTeam(npcTeam);
+	map.setPlayerTeam(playerTeam);
 }
 },{"./gamemap":2,"./npc":4,"./point":5,"./team":6}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
 let Point = require('./point')
 
 const tileWidht = 100;
+const initialTileFortification = 3;
 
 function GameMap() {
 	
@@ -134,8 +142,9 @@ function GameMap() {
 	let position = new Point(0, 0);
 	let mapWidth = 0;
 	let mapHeight = 0;
+	let playerTeam;
 
-	let teams = [];
+	this.setPlayerTeam = (team) => { playerTeam = team; }
 
 	this.addTeam = function(team) {
 		let index;
@@ -145,9 +154,8 @@ function GameMap() {
 				console.log('INVALID HEXAGON INDEX');
 			}
 		} while(hexagonList[index].hasTeam());
-		team.setCapital(hexagonList[index]);
-		hexagonList[index].setColor(team.capitalColor());
-		teams.push(team);
+		console.log(team.fortificationColor(initialTileFortification));
+		hexagonList[index].setColor(team.fortificationColor(initialTileFortification));
 	}
 	
 	this.fillMap = function(width, height) {
@@ -238,19 +246,28 @@ function GameMap() {
 	this.hexagonClick = function(point) {
 		for (hexagon of hexagonList) {
 			if (hexagon.isPointInside(point)) {
-				return hexagon;
+				this.hexagonPress(hexagon, playerTeam);
 			}
 		}
 	}
 
 	this.hexagonPress = function(hexagon, team) {
+		if (!hexagon.hasTeam()) {
+			team.addHexagon();
+			console.log('COLONIZED');
+			hexagon.setTeam(team);
+		} else if (hexagon.getTeam() === team) {
+			hexagon.addFortification();
+		} else {
 
+		}
 	}
 }
 
 module.exports = GameMap;
 },{"./hexagon":3,"./point":5}],3:[function(require,module,exports){
-let Point = require('./point')
+let Point = require('./point');
+let Team = require('./team');
 
 const hexagonalDirection = {
 	TOP_LEFT: 0,
@@ -286,10 +303,39 @@ function Hexagon(x, y, width) {
 	
 	let color = 'rgb(0, 0, 0)';
 
+	let changeColor = () => {
+		if (this.hasTeam()) {
+			this.setColor(team.fortificationColor(fortification));
+		} else {
+			this.setColor('rgb(140, 140, 140)');
+		}
+	}
+
 	let team = null;
 
+	let fortification = 0;
+
+	this.addFortification = () => { 
+		fortification++;
+		changeColor();
+	}
+
+	this.removeFortification = () => { 
+		fortification--; 
+		if (fortification <= 0) {
+			team.removeHexagon();
+			team = null;
+		}
+		changeColor();
+	}
+
+	this.getFortification = () => { return fortification; }
+
 	this.setTeam = function(newTeam) {
+		console.log('Set team called')
 		team = newTeam;
+		fortification = 1;
+		this.setColor(team.fortificationColor(2));
 	}
 
 	this.getTeam = function() {
@@ -418,7 +464,7 @@ module.exports = {
 	adjacentHexagon,
 	hexagonalDirection
 }
-},{"./point":5}],4:[function(require,module,exports){
+},{"./point":5,"./team":6}],4:[function(require,module,exports){
 let GameMap = require('./gamemap');
 let Team = require('./team');
 
@@ -446,8 +492,7 @@ class Point {
 module.exports = Point;
 
 },{}],6:[function(require,module,exports){
-const capitalColorDelta = 0.8;
-const minFortification = 70;
+const minFortification = 40;
 const fortificationLevels = 10;
 
 let Team = function() {
@@ -456,24 +501,18 @@ let Team = function() {
   let green = minFortification;
   let blue = minFortification;
 
-  let hexagonList = [];
+  let hexagonCount = 1;
   let money = 0;
 
-  let capital;
-
-  this.setCapital = (hexagon) => { capital = hexagon; }
-  this.getCapital = () => { return capital; }
-  this.isCapital = (hexagon) => { return hexagon == capital; }
+  this.addHexagon = () => { hexagonCount++; }
+  this.removeHexagon = () => { hexagonCount--; }
 
   this.setRed = (newRed) => { red = Math.floor(Math.max(Math.min(newRed, 255), minFortification)); }
   this.setGreen = (newGreen) => { green = Math.floor(Math.max(Math.min(newGreen, 255), minFortification)); }
   this.setBlue = (newBlue) => { blue = Math.floor(Math.max(Math.min(newBlue, 255), minFortification)); }
 
-  this.addHexagons = (hexagon) => {
-    hexagonList.push(hexagon);
-  }
   this.runTurn = () => {
-    money += hexagonList.length;
+    money += hexagonCount;
   }
   this.getMoney = () => { return money; }
 
@@ -482,9 +521,9 @@ let Team = function() {
       console.log('INVALID FORTIFICATION LEVEL');
     }
     return 'rgb(' + 
-      (Math.floor(Math.max(level * (red * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
-      (Math.floor(Math.max(level * (green * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
-      (Math.floor(Math.max(level * (blue * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      (Math.floor(Math.max((fortificationLevels - level) * (red - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
+      (Math.floor(Math.max((fortificationLevels - level) * (green - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      (Math.floor(Math.max((fortificationLevels - level) * (blue - minFortification)) / fortificationLevels, 0) + minFortification) +
       ')';
   }
 
