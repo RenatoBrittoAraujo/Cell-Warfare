@@ -22,6 +22,9 @@ let turnLenght = 3000; // In milisseconds
 let playerTeam = new Team();
 let npcTeam = new Team();
 
+playerTeam.setGreen(255);
+npcTeam.setRed(255);
+
 (function mainGameLoop()
 {
 	map = new GameMap();
@@ -79,7 +82,9 @@ window.addEventListener('keypress', (e) => {
 			mapWidth++;
 			break;
 		case 'Enter':
-			startGame();
+			if (map.isValid()) {
+				startGame();
+			}
 			return;
 	}
 	setMap();
@@ -112,6 +117,8 @@ function startGame() {
 	map.uncolonize();
 	timeSinceLastTurn = 0;
 	playingGame = true;
+	map.addTeam(playerTeam);
+	map.addTeam(npcTeam);
 }
 },{"./gamemap":2,"./npc":4,"./point":5,"./team":6}],2:[function(require,module,exports){
 let hexagonPackage = require('./hexagon')
@@ -121,10 +128,27 @@ const tileWidht = 100;
 
 function GameMap() {
 	
-	let hexagonList = [];
+	const uncolonizedHexColor = 'rgb(140, 140, 140)';
+
+	let hexagonList = [];	
 	let position = new Point(0, 0);
 	let mapWidth = 0;
 	let mapHeight = 0;
+
+	let teams = [];
+
+	this.addTeam = function(team) {
+		let index;
+		do {
+			index = Math.floor(Math.random() * hexagonList.length); 
+			if (index < 0 || index >= hexagonList.length) {
+				console.log('INVALID HEXAGON INDEX');
+			}
+		} while(hexagonList[index].hasTeam());
+		team.setCapital(hexagonList[index]);
+		hexagonList[index].setColor(team.capitalColor());
+		teams.push(team);
+	}
 	
 	this.fillMap = function(width, height) {
 
@@ -176,6 +200,9 @@ function GameMap() {
 		}
 	}
 
+	/*
+		Set's map position in relation to context
+	*/
 	this.setPosition = function(point) {
 		let vectorFromLastPosition = new Point(
 			point.getX() - position.getX(),
@@ -191,15 +218,17 @@ function GameMap() {
 		}
 	}
 
+	/*
+		Turns all hexagons to default uncolonized color and removes all teams
+	*/
 	this.uncolonize = function() {
-		let lightGrey = 'rgb(170, 170, 170)'
 		for (hexagon of hexagonList) {
-			hexagon.setColor(lightGrey);
+			hexagon.setColor(uncolonizedHexColor);
 			hexagon.setTeam(null);
 		}
 	}
 
-	this.isValidMap = function() {
+	this.isValid = function() {
 		return hexagonList.length > 1;
 	}
 
@@ -350,6 +379,7 @@ function Hexagon(x, y, width) {
 
 // The following contant determines the standard distance between hexagons
 const adjacentHexagonDistance = 2;
+
 /*
 	Returns a new Hexagon adjacent to input hexagon off to the cited direction
 */
@@ -363,37 +393,22 @@ function adjacentHexagon(hexagon, direction) {
 	const factorZ = factorY / 2;
 	
 	switch (direction) {
-		case hexagonalDirection.TOP_LEFT:
-
-		newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + adjacentHexagonDistance;
-		newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance;
-		break;
 		case hexagonalDirection.TOP_RIGHT:
-
-		newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
-		newY = oldPosition.getY() - hexagon.getHeight() / 2 - adjacentHexagonDistance;
-		break;
-		case hexagonalDirection.TOP:
-		
-		newX = oldPosition.getX();
-		newY = oldPosition.getY() - nexagon.getHeight() - 2 * adjacentHexagonDistance;
-		break;
-		case hexagonalDirection.BOTTOM_LEFT:
-		
-		newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + adjacentHexagonDistance;
+			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
+			newY = oldPosition.getY() - hexagon.getHeight() / 2 - adjacentHexagonDistance;
+			break;
+		case hexagonalDirection.TOP:	
+			newX = oldPosition.getX();
+			newY = oldPosition.getY() - nexagon.getHeight() - 2 * adjacentHexagonDistance;
+			break;
+		case hexagonalDirection.BOTTOM:	
+			newX = oldPosition.getX();
+			newY = oldPosition.getY() + hexagon.getHeight() + 2 * adjacentHexagonDistance;
+			break;
+		case hexagonalDirection.BOTTOM_RIGHT:	
+			newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
 			newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance;
 			break;
-		case hexagonalDirection.BOTTOM:
-		
-		newX = oldPosition.getX();
-		newY = oldPosition.getY() + hexagon.getHeight() + 2 * adjacentHexagonDistance;
-		break;
-		case hexagonalDirection.BOTTOM_RIGHT:
-		
-		newX = oldPosition.getX() + hexagon.getWidth() * 3 / 4 + factorY + factorZ;
-		newY = oldPosition.getY() + hexagon.getHeight() / 2 + adjacentHexagonDistance;
-		break;
-		
 	}
 	return new Hexagon(newX, newY, newWidth);
 }
@@ -431,11 +446,29 @@ class Point {
 module.exports = Point;
 
 },{}],6:[function(require,module,exports){
+const capitalColorDelta = 0.8;
+const minFortification = 70;
+const fortificationLevels = 10;
+
 let Team = function() {
-  let color = 'rgb(0, 0, 0)';
+  
+  let red = minFortification;
+  let green = minFortification;
+  let blue = minFortification;
+
   let hexagonList = [];
   let money = 0;
-  this.setColor = (newColor) => { color = newColor; }
+
+  let capital;
+
+  this.setCapital = (hexagon) => { capital = hexagon; }
+  this.getCapital = () => { return capital; }
+  this.isCapital = (hexagon) => { return hexagon == capital; }
+
+  this.setRed = (newRed) => { red = Math.floor(Math.max(Math.min(newRed, 255), minFortification)); }
+  this.setGreen = (newGreen) => { green = Math.floor(Math.max(Math.min(newGreen, 255), minFortification)); }
+  this.setBlue = (newBlue) => { blue = Math.floor(Math.max(Math.min(newBlue, 255), minFortification)); }
+
   this.addHexagons = (hexagon) => {
     hexagonList.push(hexagon);
   }
@@ -443,6 +476,21 @@ let Team = function() {
     money += hexagonList.length;
   }
   this.getMoney = () => { return money; }
+
+  this.fortificationColor = function(level) {
+    if (level < 1 || level > fortificationLevels) {
+      console.log('INVALID FORTIFICATION LEVEL');
+    }
+    return 'rgb(' + 
+      (Math.floor(Math.max(level * (red * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
+      (Math.floor(Math.max(level * (green * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      (Math.floor(Math.max(level * (blue * capitalColorDelta - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
+      ')';
+  }
+
+  this.capitalColor = function() {
+    return 'rgb(' + red + ',' + green + ',' + blue + ')';
+  }
 }
 
 module.exports = Team;

@@ -5,10 +5,27 @@ const tileWidht = 100;
 
 function GameMap() {
 	
-	let hexagonList = [];
+	const uncolonizedHexColor = 'rgb(140, 140, 140)';
+
+	let hexagonList = [];	
 	let position = new Point(0, 0);
 	let mapWidth = 0;
 	let mapHeight = 0;
+
+	let teams = [];
+
+	this.addTeam = function(team) {
+		let index;
+		do {
+			index = Math.floor(Math.random() * hexagonList.length); 
+			if (index < 0 || index >= hexagonList.length) {
+				console.log('INVALID HEXAGON INDEX');
+			}
+		} while(hexagonList[index].hasTeam());
+		team.setCapital(hexagonList[index]);
+		hexagonList[index].setColor(team.capitalColor());
+		teams.push(team);
+	}
 	
 	this.fillMap = function(width, height) {
 
@@ -60,6 +77,9 @@ function GameMap() {
 		}
 	}
 
+	/*
+		Set's map position in relation to context
+	*/
 	this.setPosition = function(point) {
 		let vectorFromLastPosition = new Point(
 			point.getX() - position.getX(),
@@ -75,15 +95,17 @@ function GameMap() {
 		}
 	}
 
+	/*
+		Turns all hexagons to default uncolonized color and removes all teams
+	*/
 	this.uncolonize = function() {
-		let lightGrey = 'rgb(170, 170, 170)'
 		for (hexagon of hexagonList) {
-			hexagon.setColor(lightGrey);
+			hexagon.setColor(uncolonizedHexColor);
 			hexagon.setTeam(null);
 		}
 	}
 
-	this.isValidMap = function() {
+	this.isValid = function() {
 		return hexagonList.length > 1;
 	}
 

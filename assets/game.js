@@ -21,6 +21,9 @@ let turnLenght = 3000; // In milisseconds
 let playerTeam = new Team();
 let npcTeam = new Team();
 
+playerTeam.setGreen(255);
+npcTeam.setRed(255);
+
 (function mainGameLoop()
 {
 	map = new GameMap();
@@ -78,7 +81,9 @@ window.addEventListener('keypress', (e) => {
 			mapWidth++;
 			break;
 		case 'Enter':
-			startGame();
+			if (map.isValid()) {
+				startGame();
+			}
 			return;
 	}
 	setMap();
@@ -111,4 +116,6 @@ function startGame() {
 	map.uncolonize();
 	timeSinceLastTurn = 0;
 	playingGame = true;
+	map.addTeam(playerTeam);
+	map.addTeam(npcTeam);
 }
