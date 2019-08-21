@@ -93,7 +93,7 @@ function GameMap() {
 	this.hexagonClick = function(point) {
 		for(let i = 0; i < hexagonList.length; i++) {
 			if (hexagonList[i].isPointInside(point)) {
-				console.log('Click on hexagon ' + i);
+				console.log(i);
 			}
 		}
 	}

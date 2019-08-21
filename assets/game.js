@@ -15,7 +15,8 @@ window.addEventListener('resize', () => {
 let map;
 
 window.addEventListener('mousedown', (e) => {
-	map.hexagonClick(new Point(e.x, e.y));
+	let rect = canvas.getBoundingClientRect();
+	map.hexagonClick(new Point(e.x - rect.x, e.y - rect.y));
 });
 
 let playingGame = false;

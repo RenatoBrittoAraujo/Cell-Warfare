@@ -16,7 +16,8 @@ window.addEventListener('resize', () => {
 let map;
 
 window.addEventListener('mousedown', (e) => {
-	map.hexagonClick(new Point(e.x, e.y));
+	let rect = canvas.getBoundingClientRect();
+	map.hexagonClick(new Point(e.x - rect.x, e.y - rect.y));
 });
 
 let playingGame = false;
@@ -183,7 +184,7 @@ function GameMap() {
 	this.hexagonClick = function(point) {
 		for(let i = 0; i < hexagonList.length; i++) {
 			if (hexagonList[i].isPointInside(point)) {
-				console.log('Click on hexagon ' + i);
+				console.log(i);
 			}
 		}
 	}
@@ -267,6 +268,12 @@ function Hexagon(x, y, width) {
 		Returns true if a given point is inside hexagon, false otherwise	
 	*/
 	this.isPointInside = function(pointB) {
+
+		// pointB.print();
+
+		// for (point of points) {
+		// 	point.print();
+		// }
 
 		/*
 			Checks if point that is on the same line of a segment is inside given segment
@@ -378,6 +385,7 @@ class Point {
 		this.setY = (newY) => { y = newY; };
 		this.getX = () => { return x; };
 		this.getY = () => { return y; };
+		this.print = () => { console.log('X: ' + Math.round(x * 100) / 100 + ' Y: ' + Math.round(y * 100) / 100); }
 	}
 }
 

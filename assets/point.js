@@ -9,6 +9,7 @@ class Point {
 		this.setY = (newY) => { y = newY; };
 		this.getX = () => { return x; };
 		this.getY = () => { return y; };
+		this.print = () => { console.log('X: ' + Math.round(x * 100) / 100 + ' Y: ' + Math.round(y * 100) / 100); }
 	}
 }
 
