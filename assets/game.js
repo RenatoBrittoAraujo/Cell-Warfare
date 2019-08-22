@@ -46,7 +46,6 @@ npcTeam.setRed(255);
 			map.draw(context);
 
 			if (playingGame) {
-
 				timeSinceLastTurn += 10; // Milisseconds
 				timeSinceLastKamikase += 10;
 				updateKamikase();
@@ -59,10 +58,15 @@ npcTeam.setRed(255);
 					}
 					map.runTurn();
 				}
+				updateTurnDisplay();
 				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
-
+				for (team of teamList) {
+					if (team.hasLost() && team == playerTeam) {
+						playingGame = false;
+						console.log('GAME OVER');
+					}
+				}
 			}
-
 	}, 10);
 
 })();
@@ -156,12 +160,21 @@ function startGame() {
 	map.addTeam(playerTeam);
 	map.addTeam(npcTeam);
 	map.setPlayerTeam(playerTeam);
+	newTurnDisplay.innerHTML = '<b> NEW TURN </b>';
 }
 
 /*
 	Generates style inside new turn tag
 */
 function updateTurnDisplay() {
-	rgb(86, 95, 173)
-
+	const stdR = 52;
+	const stdG = 58;
+	const stdB = 64;
+	const displayTime = 3000;
+	let displayPercentage = (displayTime - timeSinceLastTurn) / displayTime;
+	displayPercentage = Math.min(1.0, Math.max(0.0, displayPercentage)); 
+	newTurnDisplay.style = 'text-decoration: none; color: rgb(' +
+	 	((255 - stdR) * displayPercentage + stdR) + ',' + 
+		((255 - stdG) * displayPercentage + stdG) + ',' + 
+		((255 - stdB) * displayPercentage + stdB) + ')';
 }

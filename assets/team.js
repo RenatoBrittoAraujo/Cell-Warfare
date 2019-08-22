@@ -9,7 +9,22 @@ let Team = function() {
   let blue = minFortification;
 
   let hexagonCount = 1;
-  let money = 3;
+	let money = 3;
+
+	let hexagonsAttacked = [];
+
+	this.canAttack = (hexagon) => {
+		for (hex of hexagonsAttacked) {
+			if (hex == hexagon) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	this.attackedHexagon = (hexagon) => {
+		hexagonsAttacked.push(hexagon);
+	}
 
   this.addHexagon = () => { hexagonCount++; }
   this.removeHexagon = () => { hexagonCount--; }
@@ -19,6 +34,7 @@ let Team = function() {
   this.setBlue = (newBlue) => { blue = Math.floor(Math.max(Math.min(newBlue, 255), minFortification)); }
 
   this.runTurn = () => {
+		hexagonsAttacked = [];
     money += hexagonCount;
 	}
 	
@@ -41,7 +57,9 @@ let Team = function() {
 
   this.capitalColor = function() {
     return 'rgb(' + red + ',' + green + ',' + blue + ')';
-  }
+	}
+	
+	this.hasLost = () => { return hexagonCount <= 0; }
 }
 
 module.exports = Team;

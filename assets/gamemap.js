@@ -197,7 +197,12 @@ function GameMap() {
 			}
 			hexagon.addFortification();
 		} else {
-			hexagon.removeFortification();
+			if (team.canAttack(hexagon)) {
+				team.attackedHexagon(hexagon);
+				hexagon.removeFortification();
+			} else {
+				return;
+			}
 		}
 		team.spendMoney();
 	}
