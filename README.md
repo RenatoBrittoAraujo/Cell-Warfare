@@ -1,5 +1,7 @@
 # Cell Warfare
 
+Deployed at: https://cell-warfare.herokuapp.com/
+
 ## Installing NodeJS
 ```
 sudo apt-get install nodejs
