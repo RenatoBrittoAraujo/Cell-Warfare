@@ -4,6 +4,7 @@ let Point = require('./point');
 let NPC = require('./npc');
 
 let moneyDisplay = document.getElementById('money');
+let kamikaseButton = document.getElementById('kamikase');
 let canvas = document.querySelector('canvas');
 let context = canvas.getContext('2d');
 
@@ -17,7 +18,9 @@ let mapWidth = 1;
 let mapHeight = 1;
 
 let timeSinceLastTurn;
-let turnLenght = 3000; // In milisseconds
+const turnLenght = 3000; // In milisseconds
+const kamikaseCooldown = 60000;
+let timeSinceLastKamikase = 60001;
 
 let playerTeam = new Team();
 let npcTeam = new Team();
@@ -40,7 +43,11 @@ npcTeam.setRed(255);
 			map.draw(context);
 
 			if (playingGame) {
+
 				timeSinceLastTurn += 10; // Milisseconds
+				timeSinceLastKamikase += 10;
+				updateKamikase();
+
 				if (timeSinceLastTurn > turnLenght) {
 					timeSinceLastTurn = 0;
 					for (team of teamList) {
@@ -55,6 +62,13 @@ npcTeam.setRed(255);
 })();
 
 // LISTENERS
+
+kamikaseButton.addEventListener('mousedown', () => {
+	if (playingGame) {
+		map.kamikase();
+		timeSinceLastKamikase = 0;
+	}
+});
 
 window.addEventListener('resize', () => {
 	canvas.width = window.innerWidth;
@@ -96,6 +110,15 @@ window.addEventListener('keypress', (e) => {
 });
 
 // FUNCTIONS
+
+/*
+	Updates Kamikase Button
+*/
+function updateKamikase() {
+	kamikaseButton.innerHTML = 'Kamikase (' + 
+		(timeSinceLastKamikase > kamikaseCooldown ? 'READY' : Math.floor(timeSinceLastKamikase / 1000)) +
+		')';
+}
 
 /*
 Clear canvas back to css background-color

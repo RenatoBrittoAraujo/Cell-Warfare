@@ -1,5 +1,6 @@
 const minFortification = 40;
 const fortificationLevels = 10;
+const fortificationBlack = 15;
 
 let Team = function() {
   
@@ -19,17 +20,22 @@ let Team = function() {
 
   this.runTurn = () => {
     money += hexagonCount;
-  }
+	}
+	
+	this.spendMoney = () => { money--; }
+
   this.getMoney = () => { return money; }
+
+	this.hasMoney = () => { return money > 0; }
 
   this.fortificationColor = function(level) {
     if (level < 1 || level > fortificationLevels) {
       console.log('INVALID FORTIFICATION LEVEL');
     }
     return 'rgb(' + 
-      (Math.floor(Math.max((fortificationLevels - level) * (red - minFortification)) / fortificationLevels, 0) + minFortification) + ',' + 
-      (Math.floor(Math.max((fortificationLevels - level) * (green - minFortification)) / fortificationLevels, 0) + minFortification) + ',' +
-      (Math.floor(Math.max((fortificationLevels - level) * (blue - minFortification)) / fortificationLevels, 0) + minFortification) +
+      (Math.floor(Math.max((fortificationBlack - level) * (red - minFortification)) / fortificationBlack, 0) + minFortification) + ',' + 
+			(Math.floor(Math.max((fortificationBlack - level) * (green - minFortification)) / fortificationBlack, 0) + minFortification) + ',' +
+			(Math.floor(Math.max((fortificationBlack - level) * (blue - minFortification)) / fortificationBlack, 0) + minFortification) +
       ')';
   }
 

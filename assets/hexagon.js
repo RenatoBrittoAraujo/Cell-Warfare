@@ -10,6 +10,8 @@ const hexagonalDirection = {
 	BOTTOM_RIGHT: 5
 };
 
+const fortificationMax = 10;
+
 /*
 	Returns a new intance of a regular hexagon object with horizontal total span of width
 */
@@ -49,7 +51,14 @@ function Hexagon(x, y, width) {
 
 	this.addFortification = () => { 
 		fortification++;
+		if (fortification > fortificationMax) {
+			fortification = fortificationMax;
+		}
 		changeColor();
+	}
+
+	this.isAtCapFortification = () => {
+		return fortification == fortificationMax;
 	}
 
 	this.removeFortification = () => { 
@@ -64,10 +73,17 @@ function Hexagon(x, y, width) {
 	this.getFortification = () => { return fortification; }
 
 	this.setTeam = function(newTeam) {
-		console.log('Set team called')
 		team = newTeam;
-		fortification = 1;
-		this.setColor(team.fortificationColor(2));
+	}
+
+	this.colonize = function(newTeam, newFortification = 1) {
+		this.setTeam(newTeam);
+		fortification = newFortification;
+		this.setColor(team.fortificationColor(newFortification));
+	}
+
+	this.setTeam = function(newTeam) {
+		team = newTeam
 	}
 
 	this.getTeam = function() {
@@ -92,10 +108,6 @@ function Hexagon(x, y, width) {
 	this.setColor = function(newColor) {
 		color = newColor;
 	};
-
-	this.setTeam = function(newTeam) {
-		team = newTeam;
-	}
 
 	this.hasTeam = () => { return !!team; }
 

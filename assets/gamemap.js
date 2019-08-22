@@ -16,6 +16,14 @@ function GameMap() {
 
 	this.setPlayerTeam = (team) => { playerTeam = team; }
 
+	this.kamikase = () => {
+		for (hexagon of hexagonList) {
+			if (hexagon.hasTeam()) {
+				hexagon.removeFortification();
+			}
+		}
+	}
+
 	this.addTeam = function(team) {
 		let index;
 		do {
@@ -24,8 +32,7 @@ function GameMap() {
 				console.log('INVALID HEXAGON INDEX');
 			}
 		} while(hexagonList[index].hasTeam());
-		console.log(team.fortificationColor(initialTileFortification));
-		hexagonList[index].setColor(team.fortificationColor(initialTileFortification));
+		hexagonList[index].colonize(team, initialTileFortification);
 	}
 	
 	this.fillMap = function(width, height) {
@@ -122,15 +129,21 @@ function GameMap() {
 	}
 
 	this.hexagonPress = function(hexagon, team) {
+		if (!team.hasMoney()) {
+			return;
+		}
 		if (!hexagon.hasTeam()) {
 			team.addHexagon();
-			console.log('COLONIZED');
-			hexagon.setTeam(team);
+			hexagon.colonize(team);
 		} else if (hexagon.getTeam() === team) {
+			if (hexagon.isAtCapFortification()) {
+				return;
+			}
 			hexagon.addFortification();
 		} else {
 
 		}
+		team.spendMoney();
 	}
 }
 
