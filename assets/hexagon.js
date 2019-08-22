@@ -21,6 +21,15 @@ function Hexagon(x, y, width) {
 	let edgeSize = width / 2.0;
 
 	let points = [];
+	let neighbors = [];
+
+	this.addNeighbor = function(neighbor) {
+		neighbors.push(neighbor);
+	} 
+
+	this.getNeighbors = function() {
+		return neighbors;
+	}
 	
 	let createPoints = function(x, y) {
 		points = [

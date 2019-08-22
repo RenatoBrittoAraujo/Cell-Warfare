@@ -12,6 +12,8 @@ function GameMap() {
 	let position = new Point(0, 0);
 	let mapWidth = 0;
 	let mapHeight = 0;
+	let hexWidth = 1;
+	let hexHeight = 1;
 	let playerTeam;
 
 	this.setPlayerTeam = (team) => { playerTeam = team; }
@@ -34,12 +36,64 @@ function GameMap() {
 		} while(hexagonList[index].hasTeam());
 		hexagonList[index].colonize(team, initialTileFortification);
 	}
+
+	this.constructNeighbors = () => {
+		for (let i = 0; i < hexagonList.length; i++) {
+			// TOP
+			if (i - hexWidth >= 0) {
+				hexagonList[i].addNeighbor(hexagonList[i - hexWidth]);
+			}
+			// BOTTOM
+			if (i + hexWidth < hexagonList.length) {
+				hexagonList[i].addNeighbor(hexagonList[i + hexWidth]);
+			} 
+			// Line top - when hexagons are generated, some go top-rigth from last and others goes top-left
+			// if the modulus of index is even, it's a top, else bottom
+			if ((i % hexWidth) % 2 == 0) {
+				// TOP-LEFT
+				if (i % hexWidth != 0 && i - hexWidth - 1 >= 0) {
+					hexagonList[i].addNeighbor(hexagonList[i - hexWidth - 1]);
+				}
+				// TOP-RIGHT
+				if (i % hexWidth != hexWidth - 1 && i - hexWidth + 1 >= 0) {
+					hexagonList[i].addNeighbor(hexagonList[i - hexWidth + 1]);
+				}
+				// BOTTOM-LEFT
+				if (i % hexWidth != 0 && i - 1 >= 0) {
+					hexagonList[i].addNeighbor(hexagonList[i - 1]);
+				}
+				// BOTTOM-RIGHT
+				if (i % hexWidth != hexWidth - 1 && i + 1 < hexagonList.length) {
+					hexagonList[i].addNeighbor(hexagonList[i + 1]);
+				}
+			} else {
+				// TOP-LEFT
+				if (i % hexWidth != 0 && i - 1 >= 0) {
+					hexagonList[i].addNeighbor(hexagonList[i - 1]);
+				}
+				// TOP-RIGHT
+				if (i % hexWidth != hexWidth - 1 && i + 1 < hexagonList.length) {
+					hexagonList[i].addNeighbor(hexagonList[i + 1]);
+				}
+				// BOTTOM-LEFT
+				if (i % hexWidth != 0 && i + hexWidth - 1 < hexagonList.length) {
+					hexagonList[i].addNeighbor(hexagonList[i + hexWidth - 1]);
+				}
+				//	BOTTOM-RIGHT
+				if (i % hexWidth != hexWidth - 1 && i + hexWidth + 1 < hexagonList.length) {
+					hexagonList[i].addNeighbor(hexagonList[i + hexWidth + 1]);
+				}
+			}
+		}
+	}
 	
 	this.fillMap = function(width, height) {
 
 		hexagonList = [];
 		mapWidth = 0;
 		mapHeight = 0;
+		hexWidth = width;
+		hexHeight = height;
 
 		let makeLine = function (beginHex) {
 			let goingBottom = true
@@ -77,6 +131,8 @@ function GameMap() {
 				hex.getPosition().getY() + hex.getHeight() - position.getY()
 			);
 		}
+
+		this.constructNeighbors();
 	}
 	
 	this.draw = function (context) {
@@ -144,6 +200,34 @@ function GameMap() {
 			hexagon.removeFortification();
 		}
 		team.spendMoney();
+	}
+
+	this.runTurn = () => {
+		for (hexagon of hexagonList) {
+			if (!hexagon.hasTeam()) {
+				continue;
+			}
+
+			let enemySum = 0;
+			let friendlySum = 0;
+
+			for (neighbor of hexagon.getNeighbors()) {
+				if (!neighbor.hasTeam()) {
+					continue;
+				}
+				if (neighbor.getTeam() == hexagon.getTeam()) {
+					friendlySum += neighbor.getFortification();
+				} else {
+					enemySum += neighbor.getFortification();
+				}
+			}
+
+			friendlySum += hexagon.getFortification();
+
+			if (enemySum > friendlySum) {
+				hexagon.removeFortification();
+			}
+		}
 	}
 }
 

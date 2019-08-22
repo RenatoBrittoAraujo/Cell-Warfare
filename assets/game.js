@@ -52,11 +52,11 @@ npcTeam.setRed(255);
 
 				if (timeSinceLastTurn > newTurnLenght) {
 					newTurnLenght = Math.floor(Math.random() * (maxTurnLenght - minTurnLenght) + minTurnLenght);
-					console.log('TURN LENGHT = ' + newTurnLenght);
 					timeSinceLastTurn = 0;
 					for (team of teamList) {
 						team.runTurn();
 					}
+					map.runTurn();
 				}
 				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
 
