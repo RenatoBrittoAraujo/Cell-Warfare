@@ -24,6 +24,8 @@ const maxTurnLenght = 10000;
 let newTurnLenght = 3000;
 const kamikaseCooldown = 60000;
 let timeSinceLastKamikase = 0;
+let timeSinceLastNPCAction = 0;
+const npcMaxActionCooldown = 300;
 
 let playerTeam = new Team();
 let npcTeam = new Team();
@@ -33,9 +35,15 @@ let teamList = [playerTeam, npcTeam];
 playerTeam.setGreen(255);
 npcTeam.setRed(255);
 
+let npc = new NPC();
+npc.setTeam(npcTeam);
+npc.setEnemies([playerTeam]);
+npc.init();
+
 (function mainGameLoop()
 {
 	map = new GameMap();
+	npc.setGameMap(map);
 	setMap();
 	
 	/* Every ten milisseconds, the game updates */
@@ -46,8 +54,17 @@ npcTeam.setRed(255);
 			map.draw(context);
 
 			if (playingGame) {
+				gameEndHandling();
+
 				timeSinceLastTurn += 10; // Milisseconds
 				timeSinceLastKamikase += 10;
+				timeSinceLastNPCAction += 10;
+
+				if (timeSinceLastNPCAction > npcMaxActionCooldown) {
+					npc.takeAction();
+					timeSinceLastNPCAction = 0;
+				}
+
 				updateKamikase();
 
 				if (timeSinceLastTurn > newTurnLenght) {
@@ -57,9 +74,14 @@ npcTeam.setRed(255);
 						team.runTurn();
 					}
 					map.runTurn();
+					console.log('Player hex count: ' + playerTeam.getHexagons().length);
+					console.log('NPC hex count: ' + npcTeam.getHexagons().length);
 				}
+
 				updateTurnDisplay();
+
 				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
+
 				for (team of teamList) {
 					if (team.hasLost() && team == playerTeam) {
 						playingGame = false;
@@ -120,6 +142,14 @@ window.addEventListener('keypress', (e) => {
 });
 
 // FUNCTIONS
+
+function gameEndHandling() {
+	if (playerTeam.hasLost()) {
+		window.location.href = 'https://www.google.com';
+	} else if (npcTeam.hasLost()) {
+		window.location.href = 'https://www.facebook.com';
+	}
+}
 
 /*
 	Updates Kamikase Button

@@ -73,7 +73,7 @@ function Hexagon(x, y, width) {
 	this.removeFortification = () => { 
 		fortification--; 
 		if (fortification <= 0) {
-			team.removeHexagon();
+			team.removeHexagon(this);
 			team = null;
 		}
 		changeColor();

@@ -35,6 +35,7 @@ function GameMap() {
 			}
 		} while(hexagonList[index].hasTeam());
 		hexagonList[index].colonize(team, initialTileFortification);
+		team.addHexagon(hexagonList[index]);
 	}
 
 	this.constructNeighbors = () => {
@@ -179,17 +180,17 @@ function GameMap() {
 	this.hexagonClick = function(point) {
 		for (hexagon of hexagonList) {
 			if (hexagon.isPointInside(point)) {
-				this.hexagonPress(hexagon, playerTeam);
+				this.hexagonAction(hexagon, playerTeam);
 			}
 		}
 	}
 
-	this.hexagonPress = function(hexagon, team) {
+	this.hexagonAction = function(hexagon, team) {
 		if (!team.hasMoney()) {
 			return;
 		}
 		if (!hexagon.hasTeam()) {
-			team.addHexagon();
+			team.addHexagon(hexagon);
 			hexagon.colonize(team);
 		} else if (hexagon.getTeam() === team) {
 			if (hexagon.isAtCapFortification()) {
