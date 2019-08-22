@@ -18,9 +18,11 @@ let mapWidth = 1;
 let mapHeight = 1;
 
 let timeSinceLastTurn;
-const turnLenght = 3000; // In milisseconds
+const minTurnLenght = 3000; // In milisseconds
+const maxTurnLenght = 10000;
+let newTurnLenght = 3000;
 const kamikaseCooldown = 60000;
-let timeSinceLastKamikase = 60001;
+let timeSinceLastKamikase = 0;
 
 let playerTeam = new Team();
 let npcTeam = new Team();
@@ -48,13 +50,16 @@ npcTeam.setRed(255);
 				timeSinceLastKamikase += 10;
 				updateKamikase();
 
-				if (timeSinceLastTurn > turnLenght) {
+				if (timeSinceLastTurn > newTurnLenght) {
+					newTurnLenght = Math.floor(Math.random() * (maxTurnLenght - minTurnLenght) + minTurnLenght);
+					console.log('TURN LENGHT = ' + newTurnLenght);
 					timeSinceLastTurn = 0;
 					for (team of teamList) {
 						team.runTurn();
 					}
 				}
 				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
+
 			}
 
 	}, 10);
@@ -116,7 +121,9 @@ window.addEventListener('keypress', (e) => {
 */
 function updateKamikase() {
 	kamikaseButton.innerHTML = 'Kamikase (' + 
-		(timeSinceLastKamikase > kamikaseCooldown ? 'READY' : Math.floor(timeSinceLastKamikase / 1000)) +
+		(timeSinceLastKamikase > kamikaseCooldown ? 
+			'<b>READY</b>' : 
+		(Math.floor(timeSinceLastKamikase / 1000)) + '/' + (Math.floor(kamikaseCooldown / 1000))) +
 		')';
 }
 

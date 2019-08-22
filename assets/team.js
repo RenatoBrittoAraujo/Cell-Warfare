@@ -9,7 +9,7 @@ let Team = function() {
   let blue = minFortification;
 
   let hexagonCount = 1;
-  let money = 0;
+  let money = 3;
 
   this.addHexagon = () => { hexagonCount++; }
   this.removeHexagon = () => { hexagonCount--; }

@@ -41,7 +41,7 @@ function Hexagon(x, y, width) {
 		if (this.hasTeam()) {
 			this.setColor(team.fortificationColor(fortification));
 		} else {
-			this.setColor('rgb(140, 140, 140)');
+			this.setColor('rgb(180, 180, 180)');
 		}
 	}
 

@@ -6,7 +6,7 @@ const initialTileFortification = 3;
 
 function GameMap() {
 	
-	const uncolonizedHexColor = 'rgb(140, 140, 140)';
+	const uncolonizedHexColor = 'rgb(180, 180, 180)';
 
 	let hexagonList = [];	
 	let position = new Point(0, 0);
@@ -141,7 +141,7 @@ function GameMap() {
 			}
 			hexagon.addFortification();
 		} else {
-
+			hexagon.removeFortification();
 		}
 		team.spendMoney();
 	}
