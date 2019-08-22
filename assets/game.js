@@ -6,6 +6,7 @@ let NPC = require('./npc');
 let moneyDisplay = document.getElementById('money');
 let kamikaseButton = document.getElementById('kamikase');
 let canvas = document.querySelector('canvas');
+let newTurnDisplay = document.getElementById('newturn');
 let context = canvas.getContext('2d');
 
 let map;
@@ -155,4 +156,12 @@ function startGame() {
 	map.addTeam(playerTeam);
 	map.addTeam(npcTeam);
 	map.setPlayerTeam(playerTeam);
+}
+
+/*
+	Generates style inside new turn tag
+*/
+function updateTurnDisplay() {
+	rgb(86, 95, 173)
+
 }
