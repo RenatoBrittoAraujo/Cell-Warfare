@@ -103,6 +103,26 @@ function Hexagon(x, y, width) {
 		return !(team === null);
 	}
 	
+	this.overwelmed = () => {
+		let enemySum = 0;
+		let friendlySum = 0;
+
+		for (neighbor of this.getNeighbors()) {
+			if (!neighbor.hasTeam()) {
+				continue;
+			}
+			if (neighbor.getTeam() == this.getTeam()) {
+				friendlySum += neighbor.getFortification();
+			} else {
+				enemySum += neighbor.getFortification();
+			}
+		}
+
+		friendlySum += this.getFortification();
+
+		return enemySum - friendlySum;
+	}
+
 	this.draw = function(context) {
 		context.beginPath();
 		lastPoint = points[points.length - 1]

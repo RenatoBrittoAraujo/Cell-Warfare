@@ -219,29 +219,16 @@ function GameMap() {
 		return teamHexagons;
 	}
 
+	this.getUncolonizedHexagons = () => {
+		return this.getHexagons();
+	}
+
 	this.runTurn = () => {
 		for (hexagon of hexagonList) {
 			if (!hexagon.hasTeam()) {
 				continue;
 			}
-
-			let enemySum = 0;
-			let friendlySum = 0;
-
-			for (neighbor of hexagon.getNeighbors()) {
-				if (!neighbor.hasTeam()) {
-					continue;
-				}
-				if (neighbor.getTeam() == hexagon.getTeam()) {
-					friendlySum += neighbor.getFortification();
-				} else {
-					enemySum += neighbor.getFortification();
-				}
-			}
-
-			friendlySum += hexagon.getFortification();
-
-			if (enemySum > friendlySum) {
+			if (hexagon.overwelmed() > 0) {
 				hexagon.removeFortification();
 			}
 		}
