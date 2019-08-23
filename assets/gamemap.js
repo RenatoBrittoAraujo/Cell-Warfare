@@ -35,7 +35,7 @@ function GameMap() {
 			}
 		} while(hexagonList[index].hasTeam());
 		hexagonList[index].colonize(team, initialTileFortification);
-		team.addHexagon(hexagonList[index]);
+		team.addHexagon();
 	}
 
 	this.constructNeighbors = () => {
@@ -190,7 +190,7 @@ function GameMap() {
 			return;
 		}
 		if (!hexagon.hasTeam()) {
-			team.addHexagon(hexagon);
+			team.addHexagon();
 			hexagon.colonize(team);
 		} else if (hexagon.getTeam() === team) {
 			if (hexagon.isAtCapFortification()) {
@@ -206,6 +206,17 @@ function GameMap() {
 			}
 		}
 		team.spendMoney();
+	}
+
+	this.getHexagons = (team = undefined) => {
+		let teamHexagons = hexagonList.filter((hex) => {
+			if (team == undefined) {
+				return !hex.hasTeam();
+			} else {
+				return hex.getTeam() === team;
+			}
+		});
+		return teamHexagons;
 	}
 
 	this.runTurn = () => {

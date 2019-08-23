@@ -74,8 +74,6 @@ npc.init();
 						team.runTurn();
 					}
 					map.runTurn();
-					console.log('Player hex count: ' + playerTeam.getHexagons().length);
-					console.log('NPC hex count: ' + npcTeam.getHexagons().length);
 				}
 
 				updateTurnDisplay();

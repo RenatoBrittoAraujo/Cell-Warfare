@@ -56,7 +56,7 @@ let NPC = function() {
     }
     this.action = function() {
 			console.log('COLONIZING');
-			for (hexagon of myTeam.getHexagons()) {
+			for (hexagon of gamemap.getHexagons(myTeam)) {
 				for (neighbor of hexagon.getNeighbors()) {
 					if (!neighbor.hasTeam()) {
 						gamemap.hexagonAction(neighbor, myTeam);

@@ -6,9 +6,8 @@ let Team = function() {
   
   let red = minFortification;
   let green = minFortification;
-  let blue = minFortification;
-
-  let hexagonCount = 0;
+	let blue = minFortification;
+	
 	let money = 3;
 
 	let hexagonsAttacked = [];
@@ -26,24 +25,11 @@ let Team = function() {
 		hexagonsAttacked.push(hexagon);
 	}
 
-	let hexagons = [];	
+	let hexagonCount = 0;
 
-	this.getHexagons = () => { return hexagons; }
-
-  this.addHexagon = (hexagon) => { 
-		hexagonCount++; 
-		hexagons.push(hexagon);
-	}
-
-  this.removeHexagon = (hexagon) => { 
-		for (let i = 0; i < hexagons.length; i++) {
-			if (hex == hexagon) {
-				hexagons.splice(i, 1);
-				hexagonCount--; 
-				return;
-			}
-		}
-	}
+	this.getHexagonCount = () => { return hexagonCount; }
+  this.addHexagon = () => { hexagonCount++; }
+  this.removeHexagon = () => { hexagonCount--; }
 
   this.setRed = (newRed) => { red = Math.floor(Math.max(Math.min(newRed, 255), minFortification)); }
   this.setGreen = (newGreen) => { green = Math.floor(Math.max(Math.min(newGreen, 255), minFortification)); }
