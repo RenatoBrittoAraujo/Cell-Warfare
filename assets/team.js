@@ -13,6 +13,7 @@ let Team = function() {
 	let hexagonsAttacked = [];
 
 	this.canAttack = (hexagon) => {
+		return true;
 		for (hex of hexagonsAttacked) {
 			if (hex == hexagon && hex.hasTeam()) {
 				return false;
@@ -37,7 +38,7 @@ let Team = function() {
 
   this.runTurn = () => {
 		hexagonsAttacked = [];
-    money += hexagonCount;
+    money += Math.floor(Math.random() * hexagonCount);
 	}
 	
 	this.spendMoney = () => { money--; }

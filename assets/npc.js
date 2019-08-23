@@ -16,7 +16,7 @@ let NPC = function() {
 		for (let i = 0; i < array.length; i++) {
 			let temp = array[i];
 			let tgIndx = Math.floor(Math.random() * array.length);
-			array[i] = tgIndx;
+			array[i] = array[tgIndx];
 			array[tgIndx] = temp;
 		}
 		return array;
@@ -60,7 +60,7 @@ let NPC = function() {
 
   let colonization = function() {
     this.actionValue = function() {
-			if (myTeam.hasMoney() && gamemap.getUncolonizedHexagons() > 0) {
+			if (myTeam.hasMoney() && gamemap.getUncolonizedHexagons().length > 0) {
 				let mySize = myTeam.getHexagonCount();
 				let averageEnemySize = 0;
 				for (enemy of enemies) {
@@ -72,7 +72,8 @@ let NPC = function() {
 					Simple line equation from point (0, 15) to (2, 0), where x = powerRelation and y = output
 					Intuitively: the bigger the average enemy is in comparison to us, the more we want to expand to compete. 
 				*/
-				return (-15 / 2) * powerRelation + 15;
+				console.log('COLONIZATION PROFIT: ' + ((-15 / 2) * powerRelation + 40))
+				return ((-15 / 2) * powerRelation + 40);
 			} else {
 				return -1000;
 			}
@@ -89,7 +90,7 @@ let NPC = function() {
 				}
 			}
 			/* Otherwise, colonize random spot */
-			for (hexagon of permuteArray(gamemap.getHexagons(myTeam))) {
+			for (hexagon of permuteArray(gamemap.getUncolonizedHexagons())) {
 				if (!hexagon.hasTeam()) {
 					gamemap.hexagonAction(hexagon, myTeam);
 					return;
@@ -117,7 +118,9 @@ let NPC = function() {
 	}
 	
 	let fortificate = function() {
+
 		let bestTarget;
+
 		let allyNeighbors = (hex) => {
 			let num = 0;
 			for (neighbor of hex.getNeighbors()) {
@@ -127,29 +130,39 @@ let NPC = function() {
 			}
 			return num;
 		}
+
 		this.actionValue = function() {
+			console.log('FORTIFICATION ACTION VALUE CALLED');
 			let myHex = gamemap.getHexagons(myTeam);
 			let fortificationOptions = [];
 			for (hex of myHex) {
-				let enemyAdvantage = hexagon.overwelmed();
+				let enemyAdvantage = hex.overwelmed();
 				if (enemyAdvantage < 1) {
 					continue;
 				}
-				let price = Math.max(10, enemyAdvantage + hexagon.getFortification());
-				if (price <  enemyAdvantage) {
+				let price = Math.min(10 - hex.getFortification(), enemyAdvantage);
+				console.log('ENEMY ADVANTAGE: ' + enemyAdvantage + ' PRICE: ' + price)
+				if (price <=  enemyAdvantage) {
 					fortificationOptions.push( { price: price, hex: hex } );
 				}
 			} 
+	
 			if (fortificationOptions.length == 0) {
+				console.log('NO FORTIFICATION OPTIONS FOUND');
 				return -1000;
 			}
+
 			fortificationOptions.sort((a, b) => {
 				a.price < b.price;
 			});
+
 			if (fortificationOptions[0].price > myTeam.getMoney()) {
+				console.log('NO FORTIFICATION POSSIBLE WITH CURRENT MONEY');
 				return -1000;
 			}
+
 			bestTarget = fortificationOptions[0].hex;
+			console.log('FORTIFICATION: ' + (allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 10));
 			return allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 3;
 		}
 		this.action = function() {

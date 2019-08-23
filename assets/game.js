@@ -20,7 +20,7 @@ let mapHeight = 1;
 
 let timeSinceLastTurn;
 const minTurnLenght = 3000; // In milisseconds
-const maxTurnLenght = 10000;
+const maxTurnLenght = 6000;
 let newTurnLenght = 3000;
 const kamikaseCooldown = 60000;
 let timeSinceLastKamikase = 0;
@@ -54,6 +54,7 @@ npc.init();
 			map.draw(context);
 
 			if (playingGame) {
+
 				gameEndHandling();
 
 				timeSinceLastTurn += 10; // Milisseconds
@@ -79,13 +80,6 @@ npc.init();
 				updateTurnDisplay();
 
 				moneyDisplay.innerHTML = 'Money: ' + playerTeam.getMoney();
-
-				for (team of teamList) {
-					if (team.hasLost() && team == playerTeam) {
-						playingGame = false;
-						console.log('GAME OVER');
-					}
-				}
 			}
 	}, 10);
 
