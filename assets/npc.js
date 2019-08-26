@@ -10,9 +10,12 @@ let Team = require('./team');
 		Also there are increasing weights for actions that have been performed multiple times in row and some randomness associated with the process of selecting them
 */
 
-let NPC = function() {
+let NPC = function () {
 
-	let permuteArray = function(array) {
+	/*
+		Utility function for permuting arrays randomly
+	*/
+	let permuteArray = function (array) {
 		for (let i = 0; i < array.length; i++) {
 			let temp = array[i];
 			let tgIndx = Math.floor(Math.random() * array.length);
@@ -22,12 +25,20 @@ let NPC = function() {
 		return array;
 	}
 
-	let myTeam;
-	let enemies = [];
-	let gamemap;
+	/* NPC VARIABLES */
 
+	let debuggingMode = false;
+	this.setDebuggingMode = (val) => debuggingMode = val;
+
+	/* NPC GAME OBJECTS */
+
+	let gamemap;
+	this.setGameMap = igamemap => gamemap = igamemap;
+
+	let myTeam;
 	this.setTeam = team => myTeam = team;
-	
+
+	let enemies = [];
 	this.setEnemies = enemyList => {
 		for (enemy of enemyList) {
 			if (enemy != myTeam) {
@@ -36,19 +47,25 @@ let NPC = function() {
 		}
 	}
 
-	this.setGameMap = igamemap => gamemap = igamemap;
-
 	let actionlist;
 
+	/* NPC FUNCTIONS */
+
+	/*
+		Initializes NPC logic
+	*/
 	this.init = () => {
 		actionlist = [
 			new nothing(),
-			new colonization(),
-			new fortificate()
+			new defensiveColonization(),
+			new defensiveFortification()
 		]
 	}
 
-	this.takeAction = function() {
+	/*
+		Handles NPC action depending on game conditions
+	*/
+	this.takeAction = function () {
 		let chosenAction = actionlist[0];
 		for (action of actionlist) {
 			if (action.actionValue() > chosenAction.actionValue()) {
@@ -56,10 +73,13 @@ let NPC = function() {
 			}
 		}
 		chosenAction.action();
-  }
+	}
 
-  let colonization = function() {
-    this.actionValue = function() {
+	/*
+		Handles the action value and action for npc's defensive colonization
+	*/
+	let defensiveColonization = function () {
+		this.actionValue = function () {
 			if (myTeam.hasMoney() && gamemap.getUncolonizedHexagons().length > 0) {
 				let mySize = myTeam.getHexagonCount();
 				let averageEnemySize = 0;
@@ -72,14 +92,14 @@ let NPC = function() {
 					Simple line equation from point (0, 15) to (2, 0), where x = powerRelation and y = output
 					Intuitively: the bigger the average enemy is in comparison to us, the more we want to expand to compete. 
 				*/
-				console.log('COLONIZATION PROFIT: ' + ((-15 / 2) * powerRelation + 40))
+				if (debuggingMode) console.log('DEFENSIVE COLONIZATION PROFIT: ' + ((-15 / 2) * powerRelation + 40))
 				return ((-15 / 2) * powerRelation + 40);
 			} else {
 				return -1000;
 			}
-    }
-    this.action = function() {
-			console.log('COLONIZING');
+		}
+		this.action = function () {
+			if (debuggingMode) console.log('COLONIZING');
 			/* If there is a neighbor from which it can expand, the use it */
 			for (hexagon of permuteArray(gamemap.getHexagons(myTeam))) {
 				for (neighbor of permuteArray(hexagon.getNeighbors())) {
@@ -96,28 +116,52 @@ let NPC = function() {
 					return;
 				}
 			}
-    }
-  }
-
-	let attack = function() {
-		this.actionValue = function() {
-			return -1000;
 		}
-		this.action = function() {
+	}
+
+	/*
+		Handles the action value and action for npc's offensive colonization
+	*/
+	let offensiveColonization = () => {
+		this.actionValue = () => {
+
+		}
+		this.action = () => {
 
 		}
 	}
 
-	let kamikase = function() {
-		this.actionValue = function() {
+	/*
+		Handles the action value and action for npc's attack
+	*/
+	let attack = function () {
+		this.actionValue = function () {
 			return -1000;
 		}
-		this.action = function() {
+		this.action = function () {
 
 		}
 	}
-	
-	let fortificate = function() {
+
+
+	/*
+		Handles the action value and action for npc's kamikase
+	*/
+	let kamikase = function () {
+
+		this.actionValue = function () {
+			return -1000;
+		}
+
+		this.action = function () {
+
+		}
+	}
+
+	/*
+		Handles the action value and action for npc's defensive fortification
+	*/
+	let defensiveFortification = function () {
 
 		let bestTarget;
 
@@ -131,8 +175,8 @@ let NPC = function() {
 			return num;
 		}
 
-		this.actionValue = function() {
-			console.log('FORTIFICATION ACTION VALUE CALLED');
+		this.actionValue = function () {
+			if (debuggingMode) console.log('FORTIFICATION ACTION VALUE CALLED');
 			let myHex = gamemap.getHexagons(myTeam);
 			let fortificationOptions = [];
 			for (hex of myHex) {
@@ -141,14 +185,14 @@ let NPC = function() {
 					continue;
 				}
 				let price = Math.min(10 - hex.getFortification(), enemyAdvantage);
-				console.log('ENEMY ADVANTAGE: ' + enemyAdvantage + ' PRICE: ' + price)
-				if (price <=  enemyAdvantage) {
-					fortificationOptions.push( { price: price, hex: hex } );
+				if (debuggingMode) console.log('ENEMY ADVANTAGE: ' + enemyAdvantage + ' PRICE: ' + price)
+				if (price <= enemyAdvantage) {
+					fortificationOptions.push({ price: price, hex: hex });
 				}
-			} 
-	
+			}
+
 			if (fortificationOptions.length == 0) {
-				console.log('NO FORTIFICATION OPTIONS FOUND');
+				if (debuggingMode) console.log('NO FORTIFICATION OPTIONS FOUND');
 				return -1000;
 			}
 
@@ -157,31 +201,45 @@ let NPC = function() {
 			});
 
 			if (fortificationOptions[0].price > myTeam.getMoney()) {
-				console.log('NO FORTIFICATION POSSIBLE WITH CURRENT MONEY');
+				if (debuggingMode) console.log('NO FORTIFICATION POSSIBLE WITH CURRENT MONEY');
 				return -1000;
 			}
 
 			bestTarget = fortificationOptions[0].hex;
-			console.log('FORTIFICATION: ' + (allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 10));
+			if (debuggingMode) console.log('FORTIFICATION: ' + (allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 10));
 			return allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 3;
 		}
-		this.action = function() {
-			console.log('FORTIFICATING');
+		this.action = function () {
+			if (debuggingMode) console.log('FORTIFICATING');
 			gamemap.hexagonAction(bestTarget, myTeam);
 		}
 	}
 
 	/*
-		Does nothing, completely neutral
+		Handles the action value and action for npc's offensive colonization
 	*/
-	let nothing = function() {
-		this.actionValue = function() {
-			return 0;
+	let offensiveForitification = () => {
+		this.actionValue = () => {
+
 		}
-		this.action = function() {
-			console.log('DOING NOTHING');
+		this.action = () => {
+
 		}
 	}
+
+
+	/*
+		NPC empty action with neutral value
+	*/
+	let nothing = function () {
+		this.actionValue = function () {
+			return 0;
+		}
+		this.action = function () {
+			if (debuggingMode) console.log('DOING NOTHING');
+		}
+	}
+
 }
 
 module.exports = NPC;
