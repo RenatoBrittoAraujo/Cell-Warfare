@@ -52,7 +52,7 @@ let NPC = function () {
 	/* NPC FUNCTIONS */
 
 	/*
-		Initializes NPC logic
+		Initializes NPC logic by filling list of possible actions
 	*/
 	this.init = () => {
 		actionlist = [
@@ -163,6 +163,8 @@ let NPC = function () {
 	*/
 	let defensiveFortification = function () {
 
+		const bias = 10;
+
 		let bestTarget;
 
 		let allyNeighbors = (hex) => {
@@ -176,7 +178,6 @@ let NPC = function () {
 		}
 
 		this.actionValue = function () {
-			if (debuggingMode) console.log('FORTIFICATION ACTION VALUE CALLED');
 			let myHex = gamemap.getHexagons(myTeam);
 			let fortificationOptions = [];
 			for (hex of myHex) {
@@ -185,14 +186,12 @@ let NPC = function () {
 					continue;
 				}
 				let price = Math.min(10 - hex.getFortification(), enemyAdvantage);
-				if (debuggingMode) console.log('ENEMY ADVANTAGE: ' + enemyAdvantage + ' PRICE: ' + price)
 				if (price <= enemyAdvantage) {
 					fortificationOptions.push({ price: price, hex: hex });
 				}
 			}
 
 			if (fortificationOptions.length == 0) {
-				if (debuggingMode) console.log('NO FORTIFICATION OPTIONS FOUND');
 				return -1000;
 			}
 
@@ -201,13 +200,12 @@ let NPC = function () {
 			});
 
 			if (fortificationOptions[0].price > myTeam.getMoney()) {
-				if (debuggingMode) console.log('NO FORTIFICATION POSSIBLE WITH CURRENT MONEY');
 				return -1000;
 			}
 
 			bestTarget = fortificationOptions[0].hex;
-			if (debuggingMode) console.log('FORTIFICATION: ' + (allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 10));
-			return allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 3;
+			if (debuggingMode) console.log('DEFENSIVE FORTIFICATION PROFIT: ' + (allyNeighbors(bestTarget) + 1 - fortificationOptions[0].price + 10));
+			return allyNeighbors(bestTarget) + 1 /* Is allied to itself */ - fortificationOptions[0].price + bias;
 		}
 		this.action = function () {
 			if (debuggingMode) console.log('FORTIFICATING');
