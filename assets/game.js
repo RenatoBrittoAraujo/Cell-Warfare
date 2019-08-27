@@ -164,10 +164,21 @@ window.addEventListener('keypress', (e) => {
 	Handles game's ending conditions
 */
 function gameEndHandling() {
-	if (playerTeam.hasLost()) {
-		window.location.href = 'https://www.google.com';
-	} else if (npcTeam.hasLost()) {
-		window.location.href = 'https://www.facebook.com';
+	let aliveTeams = 0;
+	let foundTeam;
+	for (team of teamList) {
+		if (!team.hasLost())
+		{
+			aliveTeams++;
+			foundTeam = team;
+		}
+	}
+	if (aliveTeams == 0) {
+		window.location.href = '/youvetied';
+	} else if (playerTeam.hasLost()) {
+		window.location.href = '/youvelost';
+	} else if (aliveTeams == 1 && foundTeam == playerTeam) {
+		window.location.href = '/youvewon';
 	}
 }
 

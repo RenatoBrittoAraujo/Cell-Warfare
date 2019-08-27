@@ -58,7 +58,8 @@ let NPC = function () {
 		actionlist = [
 			new nothing(),
 			new defensiveColonization(),
-			new defensiveFortification()
+			new defensiveFortification(),
+			new attack()
 		]
 	}
 
@@ -135,11 +136,41 @@ let NPC = function () {
 		Handles the action value and action for npc's attack
 	*/
 	let attack = function () {
-		this.actionValue = function () {
-			return -1000;
-		}
-		this.action = function () {
 
+		const bias = 3;
+		let chosenHex;
+
+		let relativePower = (hex) => {
+			let value = hex.getFortification();
+			for (neighbor of hex.getNeighbors()) {
+				if (neighbor.getTeam() == hex.getTeam()) {
+					value += neighbor.getFortification();
+				} else {
+					value -= neighbor.getFortification();
+				}
+			}
+			return value;
+		}
+
+		this.actionValue = function () {
+			if (!myTeam.hasMoney()) {
+				return -1000;
+			}
+			let enemyHex = [];
+			for (enemy of enemies) {
+				enemyHex = enemyHex.concat(gamemap.getHexagons(enemy));
+			}
+			enemyHex.sort((hexA, hexB) => {
+				return relativePower(hexA) < relativePower(hexB);
+			});
+			chosenHex = enemyHex[0];
+			if (debuggingMode) console.log('ENEMY ATTACK VALUE: ' + (relativePower(chosenHex) / 2 + bias));
+			return relativePower(chosenHex) / 2 + bias;
+		}
+
+		this.action = function () {
+			if (debuggingMode) console.log('ATTACKING');
+			gamemap.hexagonAction(chosenHex, myTeam);
 		}
 	}
 

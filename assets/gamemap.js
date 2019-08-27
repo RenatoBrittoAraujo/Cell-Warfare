@@ -51,6 +51,7 @@ function GameMap() {
 				hexagon.removeFortification();
 			}
 		}
+		timeSinceLastKamikase = 0;
 	}
 
 	/* 
