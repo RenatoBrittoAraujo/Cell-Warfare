@@ -38,7 +38,11 @@ let Team = function() {
 
   this.runTurn = () => {
 		hexagonsAttacked = [];
-    money += Math.floor(Math.random() * hexagonCount);
+		if (hexagonCount == 1) {
+			money++;
+		} else {
+			money += Math.floor(Math.random() * hexagonCount);
+		}
 	}
 	
 	this.spendMoney = () => { money--; }
@@ -49,7 +53,6 @@ let Team = function() {
 
   this.fortificationColor = function(level) {
     if (level < 1 || level > fortificationLevels) {
-      console.log('INVALID FORTIFICATION LEVEL');
     }
     return 'rgb(' + 
       (Math.floor(Math.max((fortificationBlack - level) * (red - minFortification)) / fortificationBlack, 0) + minFortification) + ',' + 

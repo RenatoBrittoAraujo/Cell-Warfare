@@ -19,7 +19,7 @@ let context = canvas.getContext('2d');
 const refreshRate = 10;
 const minTurnLenght = 3000;
 const maxTurnLenght = 6000;
-const kamikaseCooldown = 60000;
+const kamikaseCooldown = 5000;
 const npcMaxActionCooldown = 300;
 
 /* GAME OBJECTS */

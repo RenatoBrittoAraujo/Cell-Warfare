@@ -61,7 +61,10 @@ let NPC = function () {
 			new nothing(),
 			new defensiveColonization(),
 			new defensiveFortification(),
-			new attack()
+			new attack(),
+			new kamikase(),
+			new kamikaseFortification(),
+
 		]
 	}
 
@@ -216,9 +219,6 @@ let NPC = function () {
 				return -1000;
 			}
 			let amountOfFriendlyHexagons = gamemap.getHexagons(myTeam).length;
-			if (amountOfFriendlyHexagons <= 3) {
-				return -1000;
-			}
 			timeSinceLastConsideration = 0;
 			let enemyDamage = 0;
 			let enemyLostHexagons = 0;
@@ -228,6 +228,13 @@ let NPC = function () {
 			}
 			let friendlyDamage = getKamikaseDamage(myTeam);
 			let friendlyLostHex = getKamikaseLostHexCount(myTeam);
+			let enemyHexCount = 0;
+			for (enemy of enemies) {
+				enemyHexCount += gamemap.getHexagons(enemy).lenght;
+			}
+			if (enemyHexCount == enemyLostHexagons && friendlyLostHex < amountOfFriendlyHexagons) {
+				return +1000;
+			}
 			if (friendlyLostHex + 3 >= amountOfFriendlyHexagons) {
 				return -1000;
 			}
@@ -235,13 +242,68 @@ let NPC = function () {
 			let losingRatio = enemyLostHexagons / friendlyLostHex;
 			let damageRatio = enemyDamage / friendlyDamage;
 			if (randomProbabiltyOfChoice >= losingRatio) {
-				return (1 / losingRatio) * 3.0 + damageRatio * 1.5;
+				let kamikaseValue = (1 / losingRatio) * 3.0 + (1.0 / damageRatio) * 1.5
+				console.log('KAMIKASE ACTION VALUE: ' + kamikaseValue)
+				return kamikaseValue;
 			}
 			return -1000;
 		}
 
 		this.action = function () {
-			gamemap.kamikase();
+			if (gamemap.kamikaseAvailable()) {
+				gamemap.kamikase();
+			}
+		}
+	}
+
+	/*
+		Handles the action value and action for npc's fortification against kamikase attacks wiping them out
+	*/
+	let kamikaseFortification = function() {
+		let chosenHex;
+		this.actionValue = () => {
+			let remainigHexagons = 0;
+			for (hexagon of gamemap.getHexagons(myTeam)) {
+				remainigHexagons += hexagon.getFortification() > 1 ? 1 : 0;
+			}
+			if (remainigHexagons == 0) {
+				return +1000;
+			}
+			/*
+				Simple line equation from point (1, 20) to (5, 0), where x = remainingHexagons and y = output
+				Intuitively: the least hexagons fortified, the more you need to fortify something
+				If number of colonized hexagons is low, prefer colonization
+			*/
+			let pureAnalisis = (-15 / 5) * remainigHexagons + 20;
+			let hexagonColonizedConsideration = - (1.0 / myTeam.getHexagonCount()) * 20;
+			let timeFromKamikaseConsideration = - (gamemap.timeToKamikase() / 1000);
+			return pureAnalisis + hexagonColonizedConsideration + timeFromKamikaseConsideration;
+		}
+		this.action = () => {
+			let best = 0;
+			let chosen;
+			for (hexagon of permuteArray(gamemap.getHexagons(myTeam))) {
+				let current = 0;
+				for (neighbor of hexagon.getNeighbors()) {
+					if (neighbor.hasTeam() && neighbor.getTeam() != myTeam) {
+						current++;
+					}
+				}
+				if (best <= current) {
+					if (chosen && chosen.getFortification() > hexagon.getFortification()) {
+						chosen = hexagon;
+					} else {
+						chosen = hexagon;
+						best = current;
+					}
+				}
+			}
+			if (best === 0) {
+				let randomHex = permuteArray(gamemap.getHexagons(myTeam))[0];
+				gamemap.hexagonAction(randomHex, myTeam);
+			} else {
+				gamemap.hexagonAction(chosen, myTeam);
+			}
 		}
 	}
 

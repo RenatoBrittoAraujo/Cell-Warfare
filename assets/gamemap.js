@@ -43,6 +43,13 @@ function GameMap() {
 	this.kamikaseAvailable = () => timeSinceLastKamikase >= kamikaseCooldown;
 
 	/*
+		Returns to kamikase from now
+	*/
+	this.timeToKamikase = () => {
+		return Math.max(0, kamikaseCooldown - timeSinceLastKamikase);
+	}
+
+	/*
 		Performs Kamikase on map
 	*/
 	this.kamikase = () => {
