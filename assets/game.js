@@ -20,6 +20,7 @@ const refreshRate = 10;
 const minTurnLenght = 3000;
 const maxTurnLenght = 6000;
 const kamikaseCooldown = 60000;
+const npcMaxActionCooldown = 300;
 
 /* GAME OBJECTS */
 
@@ -37,7 +38,6 @@ let timeSinceLastTurn;
 let newTurnLenght = 3000;
 
 let timeSinceLastNPCAction = 0;
-const npcMaxActionCooldown = 300;
 
 /* GAME LISTS */
 
@@ -60,6 +60,7 @@ let npc = new NPC();
 /* DEVELOPING ONLY */
 npc.setDebuggingMode(true);
 
+npc.setNpcRefreshRate(npcMaxActionCooldown);
 npc.setTeam(npcTeam);
 npc.setEnemies([playerTeam]);
 npc.init();
@@ -115,7 +116,6 @@ setMap();
 kamikaseButton.addEventListener('mousedown', () => {
 	if (playingGame) {
 		map.kamikase();
-		timeSinceLastKamikase = 0;
 	}
 });
 

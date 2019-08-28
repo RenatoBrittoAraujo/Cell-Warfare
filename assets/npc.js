@@ -29,6 +29,8 @@ let NPC = function () {
 
 	let debuggingMode = false;
 	this.setDebuggingMode = (val) => debuggingMode = val;
+	let npcRefreshRate = 100;
+	this.setNpcRefreshRate = (val) => npcRefreshRate = val;
 
 	/* NPC GAME OBJECTS */
 
@@ -149,12 +151,66 @@ let NPC = function () {
 	*/
 	let kamikase = function () {
 
+		let timeSinceLastConsideration = 0;
+		const considerationCooldown = 1000;
+		const kamikaseDelta = 0.4;
+		const baseThreshold = 0.8;
+
+		let getKamikaseDamage = (team) => {
+			let hexagons = gamemap.getHexagons(team);
+			let hexDamage = 0;
+			for (hex of hexagons) {
+				hexDamage += hex.getFortification();
+			}
+			return hexDamage;
+		}
+
+		let getKamikaseLostHexCount = (team) => {
+			let hexagons = gamemap.getHexagons(team);
+			let hexCount = 0;
+			for (hex of hexagons) {
+				if (hex.getFortification() == 1) {
+					hexCount++;
+				}
+			}
+			return hexCount;
+		}
+
 		this.actionValue = function () {
+			timeSinceLastConsideration += npcRefreshRate; 
+			if (timeSinceLastConsideration < considerationCooldown) {
+				return -1000;
+			}
+			if (!gamemap.kamikaseAvailable()) {
+				return -1000;
+			}
+			let amountOfFriendlyHexagons = gamemap.getHexagons(myTeam).length;
+			if (amountOfFriendlyHexagons <= 3) {
+				return -1000;
+			}
+			timeSinceLastConsideration = 0;
+			let enemyDamage = 0;
+			let enemyLostHexagons = 0;
+			for (enemy of enemies) {
+				enemyDamage += getKamikaseDamage(enemy);
+				enemyLostHexagons += getKamikaseLostHexCount(enemy);
+			}
+			let friendlyDamage = getKamikaseDamage(myTeam);
+			let friendlyLostHex = getKamikaseLostHexCount(myTeam);
+			if (friendlyLostHex + 3 >= amountOfFriendlyHexagons) {
+				return -1000;
+			}
+			let randomProbabiltyOfChoice = (- kamikaseDelta / 2.0 - Math.random() * kamikaseDelta) + baseThreshold;
+			let losingRatio = enemyLostHexagons / friendlyLostHex;
+			let damageRatio = enemyDamage / friendlyDamage;
+			if (randomProbabiltyOfChoice >= losingRatio) {
+				return (1 / losingRatio) * 3.0 + damageRatio * 1.5;
+			}
 			return -1000;
 		}
 
 		this.action = function () {
-
+			gamemap.kamikase();
 		}
 	}
 
