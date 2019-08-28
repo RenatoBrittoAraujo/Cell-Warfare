@@ -24,6 +24,19 @@ app.get('/about', (req, res) => {
 	res.sendFile(path.join(__dirname, 'assets', 'about.html'));
 });
 
+app.get('/youvelost', (req, res) => {
+	res.sendFile(path.join(__dirname, 'assets', 'youvelost.html'));
+});
+
+app.get('/youvewon', (req, res) => {
+	res.sendFile(path.join(__dirname, 'assets', 'youvewon.html'));
+});
+
+app.get('/youvetied', (req, res) => {
+	res.sendFile(path.join(__dirname, 'assets', 'youvetied.html'));
+});
+
+
 exec('browserify assets/game.js -o assets/bundle.js');
 
 app.listen(process.env.PORT || 3000, () => {
