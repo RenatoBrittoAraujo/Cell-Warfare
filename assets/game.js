@@ -17,8 +17,8 @@ let context = canvas.getContext('2d');
 // NOTE: In milisseconds
 
 const refreshRate = 10;
-const minTurnLenght = 3000;
-const maxTurnLenght = 6000;
+const minTurnLenght = 2000;
+const maxTurnLenght = 5000;
 const kamikaseCooldown = 60000;
 const npcMaxActionCooldown = 300;
 
@@ -220,8 +220,7 @@ function updateTurnDisplay() {
 	const stdR = 52;
 	const stdG = 58;
 	const stdB = 64;
-	const displayTime = 3000;
-	let displayPercentage = (displayTime - timeSinceLastTurn) / displayTime;
+	let displayPercentage = (minTurnLenght - timeSinceLastTurn) / minTurnLenght;
 	displayPercentage = Math.min(1.0, Math.max(0.0, displayPercentage));
 	newTurnDisplay.style = 'text-decoration: none; color: rgb(' +
 		((255 - stdR) * displayPercentage + stdR) + ',' +
