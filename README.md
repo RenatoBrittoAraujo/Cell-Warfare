@@ -1,5 +1,7 @@
 # Cell Warfare
 
+![](https://i.imgur.com/qemHXGZ.png)
+
 Deployed at: https://cell-warfare.herokuapp.com/
 
 ## Installing NodeJS
